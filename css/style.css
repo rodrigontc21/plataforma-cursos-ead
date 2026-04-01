@@ -1,0 +1,85 @@
+/* --- GERAL E VARIÁVEIS (DARK MODE DEFINITIVO) --- */
+:root {
+    --cor-primaria: #6366f1; /* Índigo */
+    --cor-secundaria: #818cf8;
+    --cor-dark-bg: #0a0a0a; /* Fundo geral preto */
+    --cor-card-bg: #171717; /* Fundo dos cards escuro */
+    --borda-dark: #262626;  /* Borda sutil */
+    --texto-claro: #f1f5f9; /* Texto branco/gelo */
+    --texto-mutado: #94a3b8; /* Texto secundário cinza */
+}
+
+body { 
+    background-color: var(--cor-dark-bg) !important; 
+    font-family: 'Inter', system-ui, sans-serif; 
+    color: var(--texto-claro) !important;
+}
+
+/* --- DESTRUINDO AS CORES CLARAS DO BOOTSTRAP --- */
+.bg-light, .bg-white { background-color: var(--cor-card-bg) !important; }
+.text-dark { color: var(--texto-claro) !important; }
+.text-muted { color: var(--texto-mutado) !important; }
+.border-bottom, .border { border-color: var(--borda-dark) !important; }
+
+/* --- NAVBAR --- */
+.navbar { background: #111111 !important; border-bottom: 1px solid var(--borda-dark); }
+.navbar-brand i { color: var(--cor-secundaria) !important; }
+.navbar .nav-link { color: var(--texto-mutado) !important; }
+.navbar .nav-link:hover, .navbar .nav-link.active, .navbar .nav-link.ativo { color: var(--texto-claro) !important; font-weight: 600; }
+
+/* --- CARDS E CONTAINERS (GERAL) --- */
+.card, .main-card, .table-card, .card-trilha, .card-cert { 
+    background-color: var(--cor-card-bg) !important; 
+    border-radius: 16px; 
+    border: 1px solid var(--borda-dark) !important;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+}
+
+/* --- CARDS EXCLUSIVOS DO MENU INICIAL (INDEX) --- */
+.card-menu { transition: all 0.3s ease; cursor: pointer; text-decoration: none; display: block; padding: 1.5rem; }
+.card-menu:hover { transform: translateY(-8px); border-color: var(--cor-primaria) !important; background-color: #202020 !important; box-shadow: 0 10px 30px rgba(99, 102, 241, 0.15); }
+.card-menu h5 { color: #ffffff !important; font-weight: 600; margin-top: 10px; }
+.card-menu p { color: var(--texto-mutado) !important; }
+.icon-box { background-image: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(0,0,0,0.3) 100%); width: 65px; height: 65px; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 1.75rem; margin-bottom: 15px; }
+
+/* --- CONSERTANDO AS TABELAS BRANCAS --- */
+.table { --bs-table-bg: transparent; color: var(--texto-claro) !important; border-color: var(--borda-dark); margin-bottom: 0; }
+.table-light, .table thead th { background-color: #111111 !important; color: var(--texto-mutado) !important; border-bottom: 2px solid #333 !important; }
+.table tbody tr { background-color: transparent !important; }
+.table tbody td { color: var(--texto-claro) !important; border-bottom-color: var(--borda-dark); }
+.table-hover tbody tr:hover td { background-color: rgba(99, 102, 241, 0.1) !important; }
+
+/* --- MODAIS E FORMULÁRIOS (NOVA TRILHA, NOVO USUÁRIO) --- */
+.modal-content { background-color: var(--cor-card-bg) !important; border: 1px solid #333; border-radius: 20px; }
+.modal-header, .modal-footer { border-color: var(--borda-dark) !important; }
+.modal-title { color: var(--texto-claro) !important; }
+.form-control, .form-select, textarea { background-color: #121212 !important; border: 1px solid var(--borda-dark) !important; color: var(--texto-claro) !important; }
+.form-control:focus, .form-select:focus, textarea:focus { border-color: var(--cor-primaria) !important; box-shadow: 0 0 0 0.25rem rgba(99, 102, 241, 0.25) !important; color: white !important; background-color: #1a1a1a !important; }
+.form-control::placeholder, textarea::placeholder { color: #52525b !important; }
+.btn-close { filter: invert(1) grayscale(100%) brightness(200%); }
+
+/* --- CONSERTANDO ALERTAS E BADGES (O AVISO AMARELO) --- */
+.alert-warning { background-color: rgba(255, 193, 7, 0.1) !important; color: #ffc107 !important; border-color: rgba(255, 193, 7, 0.2) !important; }
+.alert-info { background-color: rgba(13, 202, 240, 0.1) !important; border-color: rgba(13, 202, 240, 0.2) !important; color: #6edff6 !important; }
+.alert-danger { background-color: rgba(220, 53, 69, 0.1) !important; color: #ff6b72 !important; border-color: rgba(220, 53, 69, 0.2) !important;}
+.badge.bg-light { background-color: #333 !important; color: var(--texto-claro) !important; border-color: #444 !important; }
+
+/* --- BOTÕES --- */
+.btn-primary { background-color: var(--cor-primaria) !important; border-color: var(--cor-primaria) !important; color: white !important; }
+.btn-primary:hover { background-color: #4f46e5 !important; border-color: #4f46e5 !important; }
+.btn-outline-primary { color: var(--cor-secundaria) !important; border-color: var(--cor-secundaria) !important; }
+.btn-outline-primary:hover { background-color: var(--cor-secundaria) !important; color: white !important; }
+.btn-light, .btn-outline-dark { background-color: #262626 !important; border-color: #333 !important; color: var(--texto-claro) !important; }
+.btn-light:hover, .btn-outline-dark:hover { background-color: #333 !important; color: white !important; }
+
+/* --- MÓDULO CONTEÚDO E AULAS --- */
+.modulo-header { background: #202020; border-radius: 12px; padding: 16px 20px; margin-top: 24px; border-left: 6px solid var(--cor-primaria); }
+.aula-item { background: #121212 !important; margin-left: 30px; margin-top: 10px; border-radius: 12px; border: 1px solid var(--borda-dark); padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
+.aula-item:hover { border-color: var(--cor-primaria); background: #1a1a1a !important; }
+
+/* --- FINANCEIRO E OUTROS --- */
+.nav-pills .nav-link { color: var(--texto-mutado); }
+.nav-pills .nav-link.active { background-color: var(--cor-primaria) !important; color: white !important; }
+.qr-container { background: white !important; border: 2px dashed #444; } /* QR CODE tem que ficar branco pro celular conseguir ler */
+.section-title { border-left: 5px solid var(--cor-primaria); padding-left: 15px; margin-bottom: 25px; color: var(--texto-claro); }
+.code-box { background: rgba(99, 102, 241, 0.1); padding: 4px 8px; border-radius: 6px; font-weight: 600; color: var(--cor-secundaria); }
