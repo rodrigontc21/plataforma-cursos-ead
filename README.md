@@ -9,30 +9,30 @@ Desenvolver um sistema *Single Page Application* (SPA) simulado no frontend para
 
 ## 📂 Estrutura do Projeto
 
-> 📁 PlataformaCursos/
-> ├── css/                ← Arquivos de estilização (Dark Mode)
-> │   └── style.css
-> ├── modules/            ← Controladores JavaScript separados por domínio
-> │   ├── assinatura/
-> │   ├── aula/
-> │   ├── certificado/
-> │   ├── curso/
-> │   ├── matricula/
-> │   ├── modulo/
-> │   ├── pagamento/
-> │   ├── plano/
-> │   ├── trilha/
-> │   └── usuario/
-> ├── pages/              ← Páginas da interface da plataforma
-> │   ├── academico.html
-> │   ├── certificados.html
-> │   ├── conteudo.html
-> │   ├── financeiro.html
-> │   ├── trilha.html
-> │   └── usuario.html
-> ├── index.html          ← Dashboard principal
-> └── README.md           ← Este arquivo
-
+```text
+📁 PlataformaCursos/
+├── css/                ← Arquivos de estilização (Dark Mode)
+│   └── style.css
+├── modules/            ← Controladores JavaScript separados por domínio
+│   ├── assinatura/
+│   ├── aula/
+│   ├── certificado/
+│   ├── curso/
+│   ├── matricula/
+│   ├── modulo/
+│   ├── pagamento/
+│   ├── plano/
+│   ├── trilha/
+│   └── usuario/
+├── pages/              ← Páginas da interface da plataforma
+│   ├── academico.html
+│   ├── certificados.html
+│   ├── conteudo.html
+│   ├── financeiro.html
+│   ├── trilha.html
+│   └── usuario.html
+├── index.html          ← Dashboard principal
+└── README.md           ← Este arquivo
 ---
 
 ## ⚙️ Tecnologias Utilizadas
