@@ -33,6 +33,7 @@ Desenvolver um sistema *Single Page Application* (SPA) simulado no frontend para
 │   └── usuario.html
 ├── index.html          ← Dashboard principal
 └── README.md           ← Este arquivo
+```
 ---
 
 ## ⚙️ Tecnologias Utilizadas
