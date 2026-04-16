@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plataforma de Cursos · Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="app-shell">
+
+    <!-- sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <i data-lucide="zap"></i>
+            <span class="sidebar-brand-text">Plataforma</span>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a href="index.html" class="sidebar-link active">
+                <i data-lucide="layout-dashboard"></i>
+                <span class="sidebar-link-label">Dashboard</span>
+            </a>
+            <a href="pages/usuario.html" class="sidebar-link">
+                <i data-lucide="users"></i>
+                <span class="sidebar-link-label">Usuários</span>
+            </a>
+            <a href="pages/academico.html" class="sidebar-link">
+                <i data-lucide="graduation-cap"></i>
+                <span class="sidebar-link-label">Acadêmico</span>
+            </a>
+            <a href="pages/conteudo.html" class="sidebar-link">
+                <i data-lucide="layers"></i>
+                <span class="sidebar-link-label">Conteúdo</span>
+            </a>
+            <a href="pages/trilha.html" class="sidebar-link">
+                <i data-lucide="route"></i>
+                <span class="sidebar-link-label">Trilhas</span>
+            </a>
+            <a href="pages/certificados.html" class="sidebar-link">
+                <i data-lucide="award"></i>
+                <span class="sidebar-link-label">Certificados</span>
+            </a>
+            <a href="pages/financeiro.html" class="sidebar-link">
+                <i data-lucide="credit-card"></i>
+                <span class="sidebar-link-label">Financeiro</span>
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <p class="sidebar-footer-text">LAB03 · v2.0</p>
+        </div>
+    </aside>
+
+    <!-- conteudo -->
+    <main class="main-content">
+
+        <header class="page-header">
+            <h1 class="page-title">Bem-vindo, Rodrigo</h1>
+            <p class="page-subtitle">Visão geral da plataforma em tempo real.</p>
+        </header>
+
+        <!-- KPIs -->
+        <p class="section-label">Visão Geral</p>
+        <div class="bento-grid kpi-grid">
+            <div class="bento-card kpi-card">
+                <div class="kpi-label">
+                    <i data-lucide="user"></i>
+                    Usuários
+                </div>
+                <div class="kpi-value" id="dash-users">0</div>
+            </div>
+            <div class="bento-card kpi-card">
+                <div class="kpi-label">
+                    <i data-lucide="tag"></i>
+                    Categorias
+                </div>
+                <div class="kpi-value" id="dash-cats">0</div>
+            </div>
+            <div class="bento-card kpi-card">
+                <div class="kpi-label">
+                    <i data-lucide="book-open"></i>
+                    Cursos
+                </div>
+                <div class="kpi-value" id="dash-cursos">0</div>
+            </div>
+            <div class="bento-card kpi-card">
+                <div class="kpi-label">
+                    <i data-lucide="clipboard-check"></i>
+                    Matrículas
+                </div>
+                <div class="kpi-value" id="dash-mats">0</div>
+            </div>
+            <div class="bento-card kpi-card">
+                <div class="kpi-label">
+                    <i data-lucide="award"></i>
+                    Certificados
+                </div>
+                <div class="kpi-value" id="dash-certs">0</div>
+            </div>
+        </div>
+
+        <!-- Nav Cards -->
+        <p class="section-label">Módulos</p>
+        <div class="bento-grid menu-grid">
+
+            <a href="pages/usuario.html" class="bento-card menu-card">
+                <span class="menu-arrow"><i data-lucide="arrow-up-right"></i></span>
+                <div class="menu-icon-wrap"><i data-lucide="users"></i></div>
+                <h3 class="menu-title">Usuários</h3>
+                <p class="menu-desc">Gestão de alunos, instrutores e matrículas.</p>
+            </a>
+
+            <a href="pages/academico.html" class="bento-card menu-card">
+                <span class="menu-arrow"><i data-lucide="arrow-up-right"></i></span>
+                <div class="menu-icon-wrap"><i data-lucide="graduation-cap"></i></div>
+                <h3 class="menu-title">Acadêmico</h3>
+                <p class="menu-desc">Cursos, categorias e estrutura de ensino.</p>
+            </a>
+
+            <a href="pages/conteudo.html" class="bento-card menu-card">
+                <span class="menu-arrow"><i data-lucide="arrow-up-right"></i></span>
+                <div class="menu-icon-wrap"><i data-lucide="layers"></i></div>
+                <h3 class="menu-title">Conteúdo</h3>
+                <p class="menu-desc">Módulos, aulas e materiais didáticos.</p>
+            </a>
+
+            <a href="pages/trilha.html" class="bento-card menu-card">
+                <span class="menu-arrow"><i data-lucide="arrow-up-right"></i></span>
+                <div class="menu-icon-wrap"><i data-lucide="route"></i></div>
+                <h3 class="menu-title">Trilhas</h3>
+                <p class="menu-desc">Sequências de aprendizado personalizadas.</p>
+            </a>
+
+            <a href="pages/certificados.html" class="bento-card menu-card">
+                <span class="menu-arrow"><i data-lucide="arrow-up-right"></i></span>
+                <div class="menu-icon-wrap"><i data-lucide="award"></i></div>
+                <h3 class="menu-title">Certificados</h3>
+                <p class="menu-desc">Diplomas de conclusão e verificação.</p>
+            </a>
+
+            <a href="pages/financeiro.html" class="bento-card menu-card">
+                <span class="menu-arrow"><i data-lucide="arrow-up-right"></i></span>
+                <div class="menu-icon-wrap"><i data-lucide="credit-card"></i></div>
+                <h3 class="menu-title">Financeiro</h3>
+                <p class="menu-desc">Planos, assinaturas e pagamentos.</p>
+            </a>
+
+        </div>
+
+    </main>
+</div>
+
+<!-- scripts -->
+<script src="https://unpkg.com/lucide@latest"></script>
+<script src="js/utils.js"></script>
+<script src="modules/usuario/usuario.js"></script>
+<script src="modules/usuario/usuarioController.js"></script>
+<script src="modules/categoria/categoria.js"></script>
+<script src="modules/categoria/categoriaController.js"></script>
+<script src="modules/curso/curso.js"></script>
+<script src="modules/curso/cursoController.js"></script>
+<script>
+    window.onload = () => {
+        lucide.createIcons();
+
+        const u   = new UsuarioController();
+        const cat = new CategoriaController();
+        const c   = new CursoController();
+
+        document.getElementById('dash-users').textContent  = u.listarTodos().length;
+        document.getElementById('dash-cats').textContent   = cat.listarTodas().length;
+        document.getElementById('dash-cursos').textContent = c.listarTodos().length;
+        document.getElementById('dash-mats').textContent   =
+            (JSON.parse(localStorage.getItem('plataforma_matriculas'))  || []).length;
+        document.getElementById('dash-certs').textContent  =
+            (JSON.parse(localStorage.getItem('plataforma_certificados')) || []).length;
+    };
+</script>
+
+</body>
+</html>

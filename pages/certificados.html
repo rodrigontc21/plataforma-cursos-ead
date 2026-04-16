@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Certificados · Plataforma de Cursos</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        /* ── Selector Toolbar ── */
+        .selector-toolbar {
+            display: flex;
+            align-items: center;
+            gap: 0;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 0.875rem 1.25rem;
+            margin-bottom: 2.5rem;
+        }
+        .selector-group {
+            display: flex; align-items: center;
+            gap: 0.75rem; flex: 1; min-width: 0;
+        }
+        .selector-icon {
+            width: 30px; height: 30px;
+            border-radius: 8px;
+            background: var(--indigo-muted);
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+        }
+        .selector-icon svg { width: 13px; height: 13px; color: var(--indigo); stroke-width: 2; }
+        .selector-label {
+            font-size: 11px; font-weight: 600;
+            letter-spacing: 0.07em; text-transform: uppercase;
+            color: var(--text-3); white-space: nowrap; flex-shrink: 0;
+        }
+        .selector-toolbar .form-select {
+            border: none !important; background-color: transparent !important;
+            box-shadow: none !important; padding-left: 0;
+            font-size: 0.875rem; font-weight: 500; color: var(--text-1) !important;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2371717a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") !important;
+        }
+        .selector-toolbar .form-select:focus { border: none !important; box-shadow: none !important; }
+
+        /* ── Certs Grid ── */
+        .certs-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+        }
+        @media (max-width: 1100px) { .certs-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 680px)  { .certs-grid { grid-template-columns: 1fr; } }
+
+        /* ── Cert Card ── */
+        .cert-card {
+            padding: 1.375rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            transition: border-color var(--t) var(--spring), box-shadow var(--t) var(--spring), transform var(--t) var(--spring);
+        }
+        .cert-card:hover { border-color: var(--border-strong); transform: translateY(-2px); box-shadow: 0 8px 28px rgba(0,0,0,0.35); }
+        .cert-card-top {
+            display: flex; align-items: flex-start;
+            justify-content: space-between; gap: 0.75rem;
+        }
+        .cert-card-title {
+            font-size: 0.9375rem; font-weight: 600;
+            letter-spacing: -0.01em; color: var(--text-1);
+            margin: 0 0 0.375rem; line-height: 1.3;
+        }
+        .cert-issued-icon { color: #f59e0b; flex-shrink: 0; }
+        .cert-complete-icon { color: var(--green); flex-shrink: 0; }
+
+        /* ── Progress ── */
+        .cert-prog-wrap { display: flex; flex-direction: column; gap: 0.375rem; }
+        .cert-prog-meta {
+            display: flex; justify-content: space-between;
+            font-size: 0.6875rem; color: var(--text-3);
+        }
+        .cert-prog-meta .pct { font-weight: 600; }
+        .cert-prog-meta .pct.done { color: var(--green); }
+        .cert-prog-bar {
+            height: 5px; background: var(--border);
+            border-radius: var(--radius-pill); overflow: hidden;
+        }
+        .cert-prog-fill {
+            height: 100%; border-radius: var(--radius-pill);
+            transition: width 0.5s var(--spring);
+        }
+        .cert-prog-fill.indigo  { background: var(--indigo); }
+        .cert-prog-fill.success { background: var(--green); }
+        .cert-prog-fill.gold    { background: #f59e0b; }
+
+        .cert-issued-date {
+            font-size: 0.6875rem; color: var(--text-3);
+            display: flex; align-items: center; gap: 4px;
+        }
+
+        /* ── Cert Card Action ── */
+        .cert-card-footer {
+            display: flex; flex-direction: column; gap: 0.5rem;
+            padding-top: 0.875rem;
+            border-top: 1px solid var(--border);
+            margin-top: auto;
+        }
+
+        /* ── Empty state ── */
+        .certs-empty {
+            grid-column: 1 / -1;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 4rem;
+            text-align: center;
+            color: var(--text-3);
+            font-size: 0.8125rem;
+        }
+
+        /* ── Diploma Modal ── */
+        .diploma-modal-content {
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+        }
+        .diploma-wrapper {
+            padding: 1.5rem;
+        }
+        #areaDiploma {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 3rem 3.5rem;
+            position: relative;
+            text-align: center;
+            color: #09090b;
+            border: 2px solid #6366f1;
+            box-shadow: 0 32px 80px rgba(0,0,0,0.5);
+        }
+        /* Cantos decorativos */
+        #areaDiploma::before, #areaDiploma::after {
+            content: ''; position: absolute;
+            width: 32px; height: 32px;
+        }
+        #areaDiploma::before { top: 14px; left: 14px; border-top: 2px solid #f59e0b; border-left: 2px solid #f59e0b; border-radius: 3px 0 0 0; }
+        #areaDiploma::after  { top: 14px; right: 14px; border-top: 2px solid #f59e0b; border-right: 2px solid #f59e0b; border-radius: 0 3px 0 0; }
+        .diploma-corner-bl, .diploma-corner-br {
+            position: absolute; width: 32px; height: 32px;
+        }
+        .diploma-corner-bl { bottom: 14px; left: 14px; border-bottom: 2px solid #f59e0b; border-left: 2px solid #f59e0b; border-radius: 0 0 0 3px; }
+        .diploma-corner-br { bottom: 14px; right: 14px; border-bottom: 2px solid #f59e0b; border-right: 2px solid #f59e0b; border-radius: 0 0 3px 0; }
+
+        .diploma-brand {
+            font-size: 0.65rem; letter-spacing: 0.3em;
+            color: #6366f1; font-weight: 700;
+            text-transform: uppercase; margin-top: 0.75rem;
+        }
+        .diploma-heading {
+            font-size: 1.5rem; font-weight: 800;
+            color: #09090b; margin: 1.125rem 0 0.25rem;
+            letter-spacing: 0.04em; text-transform: uppercase;
+        }
+        .diploma-divider {
+            width: 56px; height: 2px;
+            background: #f59e0b;
+            border-radius: 2px;
+            margin: 0 auto 2rem;
+        }
+        .diploma-certifies {
+            font-size: 0.8125rem; color: #6b7280; margin-bottom: 0.375rem;
+        }
+        #cert-aluno {
+            font-size: 2rem; font-weight: 800;
+            color: #6366f1; line-height: 1.15;
+            letter-spacing: -0.02em;
+            margin-bottom: 0.375rem;
+        }
+        .diploma-concluded {
+            font-size: 0.8125rem; color: #6b7280; margin-bottom: 0.375rem;
+        }
+        #cert-curso {
+            font-size: 1.125rem; font-weight: 700;
+            color: #09090b; margin-bottom: 2.25rem;
+        }
+        .diploma-footer {
+            border-top: 1px solid #e5e7eb;
+            padding-top: 1.375rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .diploma-footer-group { text-align: left; }
+        .diploma-footer-group:last-child { text-align: right; }
+        .diploma-footer-label {
+            font-size: 0.6rem; letter-spacing: 0.12em;
+            text-transform: uppercase; color: #9ca3af;
+            margin-bottom: 2px;
+        }
+        #cert-data {
+            font-weight: 700; color: #09090b; font-size: 0.875rem;
+        }
+        #cert-codigo {
+            font-family: 'Courier New', 'SF Mono', monospace;
+            font-weight: 700; color: #6366f1;
+            font-size: 1rem; letter-spacing: 0.06em;
+        }
+        .diploma-actions {
+            display: flex; gap: 0.75rem;
+            padding: 1.25rem 1.5rem 0;
+        }
+
+        /* Print */
+        @media print {
+            body * { visibility: hidden; }
+            #areaDiploma, #areaDiploma * { visibility: visible; }
+            #areaDiploma {
+                position: fixed; inset: 0;
+                display: flex; align-items: center; justify-content: center;
+                border: none; box-shadow: none; border-radius: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="app-shell">
+
+    <!-- sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <i data-lucide="zap"></i>
+            <span class="sidebar-brand-text">Plataforma</span>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="../index.html" class="sidebar-link">
+                <i data-lucide="layout-dashboard"></i>
+                <span class="sidebar-link-label">Dashboard</span>
+            </a>
+            <a href="usuario.html" class="sidebar-link">
+                <i data-lucide="users"></i>
+                <span class="sidebar-link-label">Usuários</span>
+            </a>
+            <a href="academico.html" class="sidebar-link">
+                <i data-lucide="graduation-cap"></i>
+                <span class="sidebar-link-label">Acadêmico</span>
+            </a>
+            <a href="conteudo.html" class="sidebar-link">
+                <i data-lucide="layers"></i>
+                <span class="sidebar-link-label">Conteúdo</span>
+            </a>
+            <a href="trilha.html" class="sidebar-link">
+                <i data-lucide="route"></i>
+                <span class="sidebar-link-label">Trilhas</span>
+            </a>
+            <a href="certificados.html" class="sidebar-link active">
+                <i data-lucide="award"></i>
+                <span class="sidebar-link-label">Certificados</span>
+            </a>
+            <a href="financeiro.html" class="sidebar-link">
+                <i data-lucide="credit-card"></i>
+                <span class="sidebar-link-label">Financeiro</span>
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            <p class="sidebar-footer-text">LAB03 · v2.0</p>
+        </div>
+    </aside>
+
+    <!-- conteudo -->
+    <main class="main-content">
+
+        <!-- Page Header -->
+        <header class="page-header">
+            <h1 class="page-title">Certificados</h1>
+            <p class="page-subtitle">Acompanhe o progresso e emita diplomas de conclusão.</p>
+        </header>
+
+        <!-- Selector Toolbar -->
+        <div class="selector-toolbar">
+            <div class="selector-group">
+                <div class="selector-icon">
+                    <i data-lucide="user-search"></i>
+                </div>
+                <span class="selector-label">Aluno</span>
+                <select id="selectUsuarioCert" class="form-select" onchange="onUsuarioChange()">
+                    <option value="">— Selecione o aluno para ver seus certificados —</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Galeria de Conquistas -->
+        <div id="corpoCertificados"></div>
+
+    </main>
+</div><!-- /app-shell -->
+
+<!-- modal diploma -->
+<div class="modal fade" id="modalCertificado" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content diploma-modal-content">
+            <div class="modal-body p-0">
+                <div class="diploma-wrapper">
+
+                    <!-- Diploma Card -->
+                    <div id="areaDiploma">
+                        <!-- Cantos decorativos -->
+                        <div class="diploma-corner-bl"></div>
+                        <div class="diploma-corner-br"></div>
+
+                        <!-- Selo -->
+                        <svg xmlns="http://www.w3.org/2000/svg" width="52" height="52" viewBox="0 0 24 24"
+                             fill="none" stroke="#6366f1" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                            <path d="m9 12 2 2 4-4"/>
+                        </svg>
+
+                        <div class="diploma-brand">CursosOnline · Plataforma de Ensino</div>
+
+                        <h2 class="diploma-heading">Certificado de Conclusão</h2>
+                        <div class="diploma-divider"></div>
+
+                        <p class="diploma-certifies">Certificamos que</p>
+                        <div id="cert-aluno">—</div>
+                        <p class="diploma-concluded">concluiu com êxito o curso</p>
+                        <div id="cert-curso">—</div>
+
+                        <div class="diploma-footer">
+                            <div class="diploma-footer-group">
+                                <div class="diploma-footer-label">Data de Emissão</div>
+                                <div id="cert-data">—</div>
+                            </div>
+                            <div class="diploma-footer-group">
+                                <div class="diploma-footer-label">Código de Verificação</div>
+                                <div id="cert-codigo">—</div>
+                            </div>
+                        </div>
+                    </div><!-- /areaDiploma -->
+
+                </div><!-- /diploma-wrapper -->
+
+                <!-- Ações (ocultas no print) -->
+                <div class="diploma-actions">
+                    <button class="btn btn-ghost flex-fill" onclick="window.print()">
+                        <i class="bi bi-printer me-1"></i>Imprimir Diploma
+                    </button>
+                    <button class="btn btn-primary flex-fill" data-bs-dismiss="modal">Fechar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="../js/utils.js"></script>
+<script src="../modules/usuario/usuario.js"></script>
+<script src="../modules/usuario/usuarioController.js"></script>
+<script src="../modules/categoria/categoria.js"></script>
+<script src="../modules/categoria/categoriaController.js"></script>
+<script src="../modules/curso/curso.js"></script>
+<script src="../modules/curso/cursoController.js"></script>
+<script src="../modules/modulo/modulo.js"></script>
+<script src="../modules/modulo/moduloController.js"></script>
+<script src="../modules/aula/aula.js"></script>
+<script src="../modules/aula/aulaController.js"></script>
+<script src="../modules/matricula/matricula.js"></script>
+<script src="../modules/matricula/matriculaController.js"></script>
+<script src="../modules/progressoAula/progressoAula.js"></script>
+<script src="../modules/progressoAula/progressoAulaController.js"></script>
+<script src="../modules/certificado/certificado.js"></script>
+<script src="../modules/certificado/certificadoController.js"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+
+<script>
+    // ícones svg inline
+    const SVG = {
+        award: `<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg>`,
+        checkCircle: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>`,
+        clock: `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`,
+        calendar: `<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>`
+    };
+
+    const userCtrl      = new UsuarioController();
+    const cursoCtrl     = new CursoController();
+    const moduloCtrl    = new ModuloController();
+    const aulaCtrl      = new AulaController();
+    const matriculaCtrl = new MatriculaController();
+    const progressoCtrl = new ProgressoAulaController();
+    const certCtrl      = new CertificadoController();
+
+    let usuarioLogadoId = null;
+
+    // progresso real do usuario no curso
+    const calcularProgresso = (idUsuario, curso) => {
+        const modulos = moduloCtrl.listarPorCurso(curso.ID_Curso);
+        const idsAulas = new Set(
+            modulos.flatMap(m => aulaCtrl.listarPorModulo(m.ID_Modulo).map(a => a.ID_Aula))
+        );
+        const totalReal  = idsAulas.size;
+        const concluidas = progressoCtrl.listarPorUsuario(idUsuario)
+                              .filter(p => idsAulas.has(p.ID_Aula)).length;
+        const meta = curso.TotalAulas > 0 ? curso.TotalAulas : totalReal;
+        const pct  = meta > 0 ? Math.min(Math.round((concluidas / meta) * 100), 100) : 0;
+        return { concluidas, meta, totalReal, pct };
+    };
+
+    // popular select de usuarios
+    const popularSelectUsuario = () => {
+        const usuarios = userCtrl.listarTodos();
+        const sel = document.getElementById('selectUsuarioCert');
+        sel.innerHTML =
+            '<option value="">— Selecione o aluno para ver seus certificados —</option>'
+            + usuarios.map(u =>
+                `<option value="${u.ID_Usuario}" ${u.ID_Usuario === usuarioLogadoId ? 'selected' : ''}>${u.NomeCompleto}</option>`
+              ).join('');
+    };
+
+    const onUsuarioChange = () => {
+        const val = document.getElementById('selectUsuarioCert').value;
+        usuarioLogadoId = val ? Number(val) : null;
+        renderAreaCursos();
+    };
+
+    // renderizar bento grid de conquistas
+    const renderAreaCursos = () => {
+        const area = document.getElementById('corpoCertificados');
+        if (!usuarioLogadoId) { area.innerHTML = ''; return; }
+
+        const matriculas = matriculaCtrl.listarPorUsuario(usuarioLogadoId);
+        if (matriculas.length === 0) {
+            area.innerHTML = `
+                <div class="certs-empty">
+                    <div style="font-size:2rem;margin-bottom:.75rem;opacity:.3">🎓</div>
+                    Este usuário não está matriculado em nenhum curso ainda.
+                </div>`;
+            return;
+        }
+
+        const nivelMap = {
+            'Iniciante':     'badge-success',
+            'Intermediário': 'badge-warning',
+            'Avançado':      'badge-danger'
+        };
+
+        const cards = matriculas.map(m => {
+            const curso = cursoCtrl.buscarPorId(m.ID_Curso);
+            if (!curso) return '';
+
+            const { concluidas, meta, pct } = calcularProgresso(usuarioLogadoId, curso);
+            const cert = certCtrl.buscarPorUsuarioCurso(usuarioLogadoId, curso.ID_Curso);
+
+            // Ícone de status (canto superior direito)
+            let statusIcon = '';
+            if (cert) {
+                statusIcon = `<span class="cert-issued-icon" title="Certificado emitido">${SVG.award}</span>`;
+            } else if (pct === 100) {
+                statusIcon = `<span class="cert-complete-icon" title="Pronto para emitir certificado">${SVG.checkCircle}</span>`;
+            }
+
+            // Cor e tipo da barra
+            const barClass = cert ? 'gold' : pct === 100 ? 'success' : 'indigo';
+
+            // Botão de ação
+            let botao = '';
+            if (cert) {
+                botao = `<button class="btn btn-primary btn-sm w-100"
+                                 onclick="visualizarDiploma(${usuarioLogadoId}, ${curso.ID_Curso})">
+                             Ver Diploma
+                         </button>`;
+            } else if (pct === 100) {
+                botao = `<button class="btn btn-success btn-sm w-100"
+                                 onclick="emitirCertificado(${usuarioLogadoId}, ${curso.ID_Curso})">
+                             Emitir Certificado
+                         </button>`;
+            } else {
+                botao = `<button class="btn btn-ghost btn-sm w-100" disabled
+                                 style="cursor:default;opacity:.45">
+                             ${SVG.clock} Em andamento
+                         </button>`;
+            }
+
+            return `
+            <div class="bento-card cert-card">
+                <!-- Cabeçalho -->
+                <div class="cert-card-top">
+                    <div style="min-width:0">
+                        <h3 class="cert-card-title">${curso.Titulo}</h3>
+                        <span class="badge ${nivelMap[curso.Nivel] || 'badge-ghost'}">${curso.Nivel}</span>
+                    </div>
+                    ${statusIcon}
+                </div>
+
+                <!-- Progresso -->
+                <div class="cert-prog-wrap">
+                    <div class="cert-prog-meta">
+                        <span>${concluidas} de ${meta} aulas concluídas</span>
+                        <span class="pct ${pct === 100 ? 'done' : ''}">${pct}%</span>
+                    </div>
+                    <div class="cert-prog-bar">
+                        <div class="cert-prog-fill ${barClass}" style="width:${pct}%"></div>
+                    </div>
+                </div>
+
+                ${cert ? `<div class="cert-issued-date">${SVG.calendar} Emitido em ${cert.DataEmissao}</div>` : ''}
+
+                <!-- Ação -->
+                <div class="cert-card-footer">
+                    ${botao}
+                </div>
+            </div>`;
+        }).join('');
+
+        area.innerHTML = `<div class="certs-grid">${cards}</div>`;
+    };
+
+    // emitir certificado
+    const emitirCertificado = (idUsuario, idCurso) => {
+        try {
+            certCtrl.gerarCertificado(idUsuario, idCurso);
+            renderAreaCursos();
+            setTimeout(() => visualizarDiploma(idUsuario, idCurso), 300);
+        } catch (erro) {
+            alert(erro.message);
+        }
+    };
+
+    // visualizar diploma
+    const visualizarDiploma = (idUsuario, idCurso) => {
+        const cert    = certCtrl.buscarPorUsuarioCurso(idUsuario, idCurso);
+        const usuario = userCtrl.buscarPorId(idUsuario);
+        const curso   = cursoCtrl.buscarPorId(idCurso);
+
+        document.getElementById('cert-aluno').textContent  = usuario.NomeCompleto;
+        document.getElementById('cert-curso').textContent  = curso.Titulo;
+        document.getElementById('cert-data').textContent   = cert.DataEmissao;
+        document.getElementById('cert-codigo').textContent = cert.CodigoVerificacao;
+
+        new bootstrap.Modal(document.getElementById('modalCertificado')).show();
+    };
+
+    // init
+    window.onload = () => {
+        lucide.createIcons();
+        popularSelectUsuario();
+        renderAreaCursos();
+    };
+</script>
+
+</body>
+</html>

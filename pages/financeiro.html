@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financeiro · Plataforma de Cursos</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css">
+
+    <style>
+        /* ── Two-column finance grid ── */
+        .fin-grid {
+            display: grid;
+            grid-template-columns: 2fr 3fr;
+            gap: 1.5rem;
+            align-items: start;
+            margin-bottom: 2rem;
+        }
+        @media (max-width: 1080px) { .fin-grid { grid-template-columns: 1fr; } }
+
+        /* ── Selector toolbar (inside simulator card) ── */
+        .fin-selector {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.875rem 1.25rem;
+            border-bottom: 1px solid var(--border);
+        }
+        .fin-selector svg {
+            width: 15px; height: 15px;
+            color: var(--text-3);
+            flex-shrink: 0;
+            stroke-width: 1.75;
+        }
+        .fin-selector select {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: var(--text-1);
+            font-size: 0.875rem;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+        .fin-selector select option { background: var(--surface-2); color: var(--text-1); }
+
+        /* ── Simulator empty state ── */
+        .sim-empty {
+            padding: 2.5rem 1.5rem;
+            text-align: center;
+            color: var(--text-3);
+            font-size: 0.85rem;
+        }
+
+        /* ── Plan cards grid (inside simulator) ── */
+        .plan-sim-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 0.75rem;
+            padding: 1.25rem;
+        }
+        .plan-sim-card {
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.25rem 1rem;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: 0.15rem;
+            transition: border-color 0.2s var(--spring);
+        }
+        .plan-sim-card:hover { border-color: var(--border-strong); }
+        .plan-sim-name {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-1);
+            margin-bottom: 0.35rem;
+        }
+        .plan-sim-price {
+            font-size: 1.55rem;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            color: #4ade80;
+            line-height: 1;
+        }
+        .plan-sim-duration {
+            font-size: 0.7rem;
+            color: var(--text-3);
+            margin-bottom: 0.5rem;
+        }
+        .plan-sim-desc {
+            font-size: 0.72rem;
+            color: var(--text-2);
+            line-height: 1.45;
+            flex: 1;
+            margin-bottom: 0.875rem;
+        }
+        .plan-sim-btn {
+            display: block;
+            width: 100%;
+            padding: 0.5rem;
+            border-radius: 10px;
+            background: var(--indigo);
+            border: none;
+            color: #fff;
+            font-size: 0.78rem;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            transition: opacity 0.15s, transform 0.15s var(--spring);
+            margin-top: auto;
+        }
+        .plan-sim-btn:hover { opacity: 0.85; transform: scale(1.02); }
+        .plan-sim-active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.35rem;
+            padding: 0.45rem 0.5rem;
+            border-radius: 10px;
+            background: rgba(74, 222, 128, 0.08);
+            border: 1px solid rgba(74, 222, 128, 0.18);
+            color: #4ade80;
+            font-size: 0.7rem;
+            font-weight: 600;
+            margin-top: auto;
+        }
+
+        /* ── History section ── */
+        .hist-header {
+            display: flex;
+            align-items: center;
+            gap: 0.65rem;
+            margin-bottom: 1.25rem;
+        }
+        .hist-header svg {
+            width: 15px; height: 15px;
+            color: var(--text-3);
+            stroke-width: 1.75;
+            flex-shrink: 0;
+        }
+        .hist-header .hist-label {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-2);
+        }
+        .hist-header .hist-name {
+            color: var(--indigo);
+            font-weight: 700;
+        }
+
+        /* ── Payment order summary (modal) ── */
+        .pag-summary {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            overflow: hidden;
+            margin-bottom: 1.25rem;
+        }
+        .pag-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.65rem 1rem;
+            font-size: 0.8rem;
+        }
+        .pag-row + .pag-row { border-top: 1px solid var(--border); }
+        .pag-row .pag-label {
+            color: var(--text-3);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            font-size: 0.68rem;
+        }
+        .pag-row .pag-val { color: var(--text-1); font-weight: 600; }
+        .pag-row.pag-total { background: rgba(255,255,255,0.03); }
+        .pag-row.pag-total .pag-label { color: var(--text-1); font-size: 0.78rem; }
+        .pag-row.pag-total .pag-val { color: #4ade80; font-size: 1.05rem; font-weight: 800; letter-spacing: -0.02em; }
+
+        /* ── Payment method toggle (modal) ── */
+        .pay-methods {
+            display: flex;
+            gap: 0.5rem;
+        }
+        .pay-methods .btn-check + .btn {
+            flex: 1;
+            flex-direction: column;
+            gap: 0.3rem;
+            padding: 0.65rem 0.25rem;
+            font-size: 0.78rem;
+            font-weight: 600;
+            border-radius: 12px;
+            border-color: var(--border-strong);
+            color: var(--text-2);
+            background: var(--surface-2);
+            transition: all 0.15s;
+        }
+        .pay-methods .btn-check:checked + .btn {
+            background: var(--indigo-muted);
+            border-color: var(--indigo);
+            color: var(--text-1);
+        }
+    </style>
+</head>
+<body>
+<div class="app-shell">
+
+    <!-- sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <i data-lucide="zap"></i>
+            <span class="sidebar-brand-text">Plataforma</span>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="../index.html" class="sidebar-link">
+                <i data-lucide="layout-dashboard"></i>
+                <span class="sidebar-link-label">Dashboard</span>
+            </a>
+            <a href="usuario.html" class="sidebar-link">
+                <i data-lucide="users"></i>
+                <span class="sidebar-link-label">Usuários</span>
+            </a>
+            <a href="academico.html" class="sidebar-link">
+                <i data-lucide="graduation-cap"></i>
+                <span class="sidebar-link-label">Acadêmico</span>
+            </a>
+            <a href="conteudo.html" class="sidebar-link">
+                <i data-lucide="layers"></i>
+                <span class="sidebar-link-label">Conteúdo</span>
+            </a>
+            <a href="trilha.html" class="sidebar-link">
+                <i data-lucide="route"></i>
+                <span class="sidebar-link-label">Trilhas</span>
+            </a>
+            <a href="certificados.html" class="sidebar-link">
+                <i data-lucide="award"></i>
+                <span class="sidebar-link-label">Certificados</span>
+            </a>
+            <a href="financeiro.html" class="sidebar-link active">
+                <i data-lucide="credit-card"></i>
+                <span class="sidebar-link-label">Financeiro</span>
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            <p class="sidebar-footer-text">LAB03 · v2.0</p>
+        </div>
+    </aside>
+
+    <!-- conteudo -->
+    <main class="main-content">
+
+        <!-- Page Header -->
+        <header class="page-header">
+            <h1 class="page-title">Gestão Financeira</h1>
+            <p class="page-subtitle">Gerencie planos, assinaturas e pagamentos.</p>
+        </header>
+
+        <!-- grid planos e simulador -->
+        <div class="fin-grid">
+
+            <!-- COLUNA ESQUERDA: PLANOS -->
+            <div class="table-card">
+                <div class="p-3 border-bottom d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center gap-2">
+                        <i data-lucide="tags" style="width:15px;height:15px;color:var(--text-2);stroke-width:1.75"></i>
+                        <span class="fw-semibold text-sm">Planos</span>
+                    </div>
+                    <button class="btn btn-ghost btn-sm" data-bs-toggle="modal" data-bs-target="#modalPlano">
+                        <i class="bi bi-plus-lg me-1"></i>Novo Plano
+                    </button>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light text-muted">
+                            <tr>
+                                <th class="ps-4">Nome</th>
+                                <th class="text-center">Preço</th>
+                                <th class="text-center">Duração</th>
+                                <th class="text-center pe-4">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="corpoPlanos"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- COLUNA DIREITA: SIMULADOR -->
+            <div class="table-card">
+                <div class="p-3 border-bottom d-flex align-items-center gap-2">
+                    <i data-lucide="user-check" style="width:15px;height:15px;color:var(--text-2);stroke-width:1.75"></i>
+                    <span class="fw-semibold text-sm">Simulador de Assinatura</span>
+                </div>
+                <div class="fin-selector">
+                    <!-- user icon inline SVG -->
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                         stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                        <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                    <select id="selectUsuario" onchange="onUsuarioChange()">
+                        <option value="">— Selecione um usuário —</option>
+                    </select>
+                </div>
+                <div id="areaSimulador">
+                    <div class="sim-empty">Selecione um usuário para ver os planos disponíveis.</div>
+                </div>
+            </div>
+
+        </div><!-- /fin-grid -->
+
+        <!-- historico de assinaturas -->
+        <div id="areaHistorico" style="display:none;">
+            <div class="hist-header">
+                <!-- receipt icon -->
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"/>
+                    <path d="M16 8H8M16 12H8M12 16H8"/>
+                </svg>
+                <span class="hist-label">Histórico de: <strong class="hist-name" id="lblNomeUsuario"></strong></span>
+            </div>
+            <div id="tabelaHistorico"></div>
+        </div>
+
+    </main>
+</div><!-- /app-shell -->
+
+<!-- modal novo plano -->
+<div class="modal fade" id="modalPlano" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header bg-dark text-white border-0">
+                <h5 class="modal-title fw-bold">
+                    <i class="bi bi-tags-fill me-2 text-warning"></i>Novo Plano
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="mb-3">
+                    <label class="form-label small fw-bold text-muted">NOME DO PLANO</label>
+                    <input type="text" id="p-nome" class="form-control" placeholder="Ex: Pro Anual">
+                </div>
+                <div class="row">
+                    <div class="col-6 mb-3">
+                        <label class="form-label small fw-bold text-muted">PREÇO (R$)</label>
+                        <input type="number" id="p-preco" class="form-control" min="0.01" step="0.01" placeholder="29.90">
+                    </div>
+                    <div class="col-6 mb-3">
+                        <label class="form-label small fw-bold text-muted">DURAÇÃO (MESES)</label>
+                        <input type="number" id="p-duracao" class="form-control" min="1" value="1">
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label small fw-bold text-muted">DESCRIÇÃO (opcional)</label>
+                    <textarea id="p-descricao" class="form-control" rows="2" placeholder="Benefícios do plano..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer border-0 p-4 pt-0">
+                <button class="btn btn-primary w-100 fw-bold py-3" onclick="salvarPlano()">
+                    CADASTRAR PLANO
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- modal confirmar pagamento -->
+<div class="modal fade" id="modalPagamento" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header bg-dark text-white border-0">
+                <h5 class="modal-title fw-bold">
+                    <i class="bi bi-shield-lock-fill me-2 text-success"></i>Confirmar Pagamento
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+
+                <!-- Resumo do pedido -->
+                <div class="pag-summary">
+                    <div class="pag-row">
+                        <span class="pag-label">Usuário</span>
+                        <span class="pag-val" id="pag-usuario"></span>
+                    </div>
+                    <div class="pag-row">
+                        <span class="pag-label">Plano</span>
+                        <span class="pag-val" id="pag-plano"></span>
+                    </div>
+                    <div class="pag-row">
+                        <span class="pag-label">Período</span>
+                        <span class="pag-val" id="pag-periodo"></span>
+                    </div>
+                    <div class="pag-row pag-total">
+                        <span class="pag-label">Total</span>
+                        <span class="pag-val" id="pag-valor"></span>
+                    </div>
+                </div>
+
+                <!-- Método de pagamento -->
+                <label class="form-label small fw-bold text-muted d-block mb-2">MÉTODO DE PAGAMENTO</label>
+                <div class="pay-methods">
+                    <input type="radio" class="btn-check" name="metodo" id="metPix"    value="PIX"    autocomplete="off" checked>
+                    <label class="btn d-flex flex-column align-items-center" for="metPix">
+                        <i class="bi bi-qr-code" style="font-size:1.15rem"></i>PIX
+                    </label>
+
+                    <input type="radio" class="btn-check" name="metodo" id="metCartao" value="Cartão" autocomplete="off">
+                    <label class="btn d-flex flex-column align-items-center" for="metCartao">
+                        <i class="bi bi-credit-card" style="font-size:1.15rem"></i>Cartão
+                    </label>
+
+                    <input type="radio" class="btn-check" name="metodo" id="metBoleto" value="Boleto" autocomplete="off">
+                    <label class="btn d-flex flex-column align-items-center" for="metBoleto">
+                        <i class="bi bi-upc" style="font-size:1.15rem"></i>Boleto
+                    </label>
+                </div>
+
+            </div>
+            <div class="modal-footer border-0 p-4 pt-0">
+                <button class="btn btn-primary w-100 fw-bold py-3" onclick="confirmarPagamento()">
+                    <i class="bi bi-lock-fill me-2"></i>CONFIRMAR PAGAMENTO
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="../js/utils.js"></script>
+<script src="../modules/usuario/usuario.js"></script>
+<script src="../modules/usuario/usuarioController.js"></script>
+<script src="../modules/plano/plano.js"></script>
+<script src="../modules/plano/planoController.js"></script>
+<script src="../modules/assinatura/assinatura.js"></script>
+<script src="../modules/assinatura/assinaturaController.js"></script>
+<script src="../modules/pagamento/pagamento.js"></script>
+<script src="../modules/pagamento/pagamentoController.js"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+
+<script>
+    const userCtrl       = new UsuarioController();
+    const planoCtrl      = new PlanoController();
+    const assinaturaCtrl = new AssinaturaController();
+    const pagamentoCtrl  = new PagamentoController();
+
+    let usuarioLogadoId  = null;
+    let planoSelecionado = null;   // objeto Plano completo
+
+    const brl = (v) => Number(v).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+
+    const metodoCor  = { 'PIX': 'success', 'Cartão': 'primary', 'Boleto': 'warning' };
+    const metodoIcon = { 'PIX': 'bi-qr-code', 'Cartão': 'bi-credit-card', 'Boleto': 'bi-upc' };
+
+    // renderizar tabela de planos
+    const renderPlanos = () => {
+        const planos = planoCtrl.listarTodos();
+        const corpo  = document.getElementById('corpoPlanos');
+
+        corpo.innerHTML = planos.map(p => `
+            <tr>
+                <td class="ps-4">
+                    <div class="fw-bold">${p.Nome}</div>
+                    <div class="text-muted small text-truncate" style="max-width:180px">${p.Descricao || '—'}</div>
+                </td>
+                <td class="text-center fw-bold text-success">${brl(p.Preco)}</td>
+                <td class="text-center">
+                    <span class="badge bg-secondary">${p.DuracaoMeses} ${p.DuracaoMeses === 1 ? 'mês' : 'meses'}</span>
+                </td>
+                <td class="text-center pe-4">
+                    <button class="btn btn-sm btn-outline-danger border-0" onclick="removerPlano(${p.ID_Plano})">
+                        <i class="bi bi-trash3"></i>
+                    </button>
+                </td>
+            </tr>
+        `).join('') || '<tr><td colspan="4" class="text-center py-4 text-muted">Nenhum plano cadastrado.</td></tr>';
+    };
+
+    // popular select de usuarios
+    const popularSelectUsuario = () => {
+        const usuarios = userCtrl.listarTodos();
+        const sel = document.getElementById('selectUsuario');
+        sel.innerHTML = '<option value="">— Selecione um usuário —</option>'
+            + usuarios.map(u =>
+                `<option value="${u.ID_Usuario}" ${u.ID_Usuario === usuarioLogadoId ? 'selected' : ''}>${u.NomeCompleto}</option>`
+              ).join('');
+    };
+
+    const onUsuarioChange = () => {
+        const val = document.getElementById('selectUsuario').value;
+        usuarioLogadoId = val ? Number(val) : null;
+        renderSimulador();
+        renderHistorico();
+    };
+
+    // renderizar cards de planos no simulador
+    const renderSimulador = () => {
+        const area = document.getElementById('areaSimulador');
+        if (!usuarioLogadoId) {
+            area.innerHTML = '<div class="sim-empty">Selecione um usuário para ver os planos disponíveis.</div>';
+            return;
+        }
+
+        const planos = planoCtrl.listarTodos();
+        if (planos.length === 0) {
+            area.innerHTML = '<div class="sim-empty">Nenhum plano cadastrado ainda.</div>';
+            return;
+        }
+
+        const cards = planos.map(p => {
+            const ativo = assinaturaCtrl.verificarAtivaParaPlano(usuarioLogadoId, p.ID_Plano);
+            const ass   = ativo
+                ? assinaturaCtrl.listarPorUsuario(usuarioLogadoId).find(a => a.ID_Plano === p.ID_Plano && assinaturaCtrl.estaAtiva(a))
+                : null;
+
+            const botao = ativo
+                ? `<div class="plan-sim-active">
+                       <i class="bi bi-check-circle-fill"></i>
+                       Ativo até ${ass.DataFim}
+                   </div>`
+                : `<button class="plan-sim-btn" onclick="abrirModalPagamento(${p.ID_Plano})">
+                       <i class="bi bi-cart-plus me-1"></i>Assinar
+                   </button>`;
+
+            return `
+                <div class="plan-sim-card">
+                    <div class="plan-sim-name">${p.Nome}</div>
+                    <div class="plan-sim-price">${brl(p.Preco)}</div>
+                    <div class="plan-sim-duration">${p.DuracaoMeses} ${p.DuracaoMeses === 1 ? 'mês' : 'meses'}</div>
+                    ${p.Descricao ? `<div class="plan-sim-desc">${p.Descricao}</div>` : '<div style="flex:1"></div>'}
+                    ${botao}
+                </div>`;
+        }).join('');
+
+        area.innerHTML = `<div class="plan-sim-grid">${cards}</div>`;
+    };
+
+    // abrir modal de pagamento
+    const abrirModalPagamento = (idPlano) => {
+        planoSelecionado = planoCtrl.buscarPorId(idPlano);
+        const usuario    = userCtrl.buscarPorId(usuarioLogadoId);
+
+        const inicio = new Date();
+        const fim    = new Date(inicio);
+        fim.setMonth(fim.getMonth() + planoSelecionado.DuracaoMeses);
+
+        document.getElementById('pag-usuario').textContent = usuario.NomeCompleto;
+        document.getElementById('pag-plano').textContent   = planoSelecionado.Nome;
+        document.getElementById('pag-periodo').textContent =
+            `${inicio.toLocaleDateString('pt-BR')} → ${fim.toLocaleDateString('pt-BR')}`;
+        document.getElementById('pag-valor').textContent   = brl(planoSelecionado.Preco);
+
+        document.getElementById('metPix').checked = true;
+
+        new bootstrap.Modal(document.getElementById('modalPagamento')).show();
+    };
+
+    // confirmar pagamento
+    const confirmarPagamento = () => {
+        const metodo = document.querySelector('input[name="metodo"]:checked').value;
+        try {
+            const assinatura = assinaturaCtrl.assinar(usuarioLogadoId, planoSelecionado.ID_Plano);
+            pagamentoCtrl.registrar(assinatura.ID_Assinatura, planoSelecionado.Preco, metodo);
+            bootstrap.Modal.getInstance(document.getElementById('modalPagamento')).hide();
+            renderSimulador();
+            renderHistorico();
+            renderPlanos();
+        } catch (erro) {
+            alert(erro.message);
+        }
+    };
+
+    // historico de assinaturas e pagamentos
+    const renderHistorico = () => {
+        const areaHist = document.getElementById('areaHistorico');
+        if (!usuarioLogadoId) { areaHist.style.display = 'none'; return; }
+
+        const usuario     = userCtrl.buscarPorId(usuarioLogadoId);
+        const assinaturas = assinaturaCtrl.listarPorUsuario(usuarioLogadoId);
+
+        document.getElementById('lblNomeUsuario').textContent = usuario.NomeCompleto;
+        areaHist.style.display = 'block';
+
+        const tabela = document.getElementById('tabelaHistorico');
+        if (assinaturas.length === 0) {
+            tabela.innerHTML = `<div class="table-card p-4 text-center text-muted small">Nenhuma assinatura encontrada.</div>`;
+            return;
+        }
+
+        tabela.innerHTML = `
+            <div class="table-card">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light text-muted">
+                            <tr>
+                                <th class="ps-4">ID</th>
+                                <th>Plano</th>
+                                <th>Início</th>
+                                <th>Vencimento</th>
+                                <th class="text-center">Status</th>
+                                <th>Pagamento</th>
+                                <th class="text-end pe-4">Valor</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${assinaturas.map(a => {
+                                const plano = planoCtrl.buscarPorId(a.ID_Plano);
+                                const pag   = pagamentoCtrl.buscarPorAssinatura(a.ID_Assinatura);
+                                const ativa = assinaturaCtrl.estaAtiva(a);
+                                const metodo = pag ? (pag.MetodoPagamento || pag.Metodo) : null;
+                                return `
+                                <tr>
+                                    <td class="ps-4 text-muted small">#${a.ID_Assinatura}</td>
+                                    <td><div class="fw-bold">${plano ? plano.Nome : '—'}</div></td>
+                                    <td class="text-muted small">${a.DataInicio}</td>
+                                    <td class="text-muted small">${a.DataFim}</td>
+                                    <td class="text-center">
+                                        <span class="badge ${ativa ? 'bg-success' : 'bg-secondary'}">
+                                            ${ativa ? 'Ativa' : 'Expirada'}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        ${metodo
+                                            ? `<span class="badge bg-${metodoCor[metodo] || 'secondary'}">
+                                                   <i class="bi ${metodoIcon[metodo] || ''} me-1"></i>${metodo}
+                                               </span>
+                                               <span class="text-muted small ms-1">${pag.DataPagamento}</span>`
+                                            : '<span class="text-muted small">—</span>'}
+                                    </td>
+                                    <td class="text-end pe-4 fw-bold text-success">
+                                        ${pag ? brl(pag.ValorPago) : '—'}
+                                    </td>
+                                </tr>`;
+                            }).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            </div>`;
+
+        areaHist.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    };
+
+    // salvar plano
+    const salvarPlano = () => {
+        const nome    = document.getElementById('p-nome').value;
+        const preco   = document.getElementById('p-preco').value;
+        const duracao = document.getElementById('p-duracao').value;
+        const desc    = document.getElementById('p-descricao').value;
+        try {
+            planoCtrl.cadastrar(nome, desc, preco, duracao);
+            document.getElementById('p-nome').value      = '';
+            document.getElementById('p-preco').value     = '';
+            document.getElementById('p-duracao').value   = '1';
+            document.getElementById('p-descricao').value = '';
+            bootstrap.Modal.getInstance(document.getElementById('modalPlano')).hide();
+            renderPlanos();
+            renderSimulador();
+        } catch (erro) {
+            alert(erro.message);
+        }
+    };
+
+    // remover plano
+    const removerPlano = (id) => {
+        if (confirm('Excluir este plano?')) {
+            planoCtrl.remover(id);
+            renderPlanos();
+            renderSimulador();
+        }
+    };
+
+    // init
+    window.onload = () => {
+        lucide.createIcons();
+        planoCtrl.inicializarSemente();
+        renderPlanos();
+        popularSelectUsuario();
+    };
+</script>
+
+</body>
+</html>

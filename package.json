@@ -1,0 +1,10 @@
+{
+  "name": "plataforma-de-cursos",
+  "version": "1.0.0",
+  "description": "LAB03 - Plataforma de Cursos Online com gestão acadêmica, financeira e de conteúdo.",
+  "author": "Rodrigo Vieira",
+  "license": "ISC",
+  "scripts": {
+    "start": "npx live-server --port=5500"
+  }
+}

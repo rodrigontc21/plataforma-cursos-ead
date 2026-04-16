@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trilhas · Plataforma de Cursos</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        /* ── Trilhas Bento Grid ── */
+        .trilhas-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-bottom: 2.5rem;
+        }
+        @media (max-width: 1100px) { .trilhas-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 680px)  { .trilhas-grid { grid-template-columns: 1fr; } }
+
+        /* ── Trilha Card ── */
+        .trilha-card {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            padding: 1.375rem 1.5rem;
+            transition: border-color var(--t) var(--spring), box-shadow var(--t) var(--spring), transform var(--t) var(--spring);
+        }
+        .trilha-card:hover {
+            border-color: var(--border-strong);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.35);
+            transform: translateY(-2px);
+        }
+        .trilha-card-top {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 0.75rem;
+        }
+        .trilha-name {
+            font-size: 1rem;
+            font-weight: 600;
+            letter-spacing: -0.01em;
+            color: var(--text-1);
+            margin: 0 0 0.375rem;
+            line-height: 1.3;
+        }
+        .trilha-desc {
+            font-size: 0.8125rem;
+            color: var(--text-2);
+            line-height: 1.55;
+            margin: 0;
+            flex: 1;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .trilha-card-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-top: 0.875rem;
+            border-top: 1px solid var(--border);
+            margin-top: auto;
+        }
+
+        /* ── Trilha Count Badge ── */
+        .trilha-count {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 0.25rem 0.625rem;
+            border-radius: var(--radius-pill);
+            font-size: 0.6875rem;
+            font-weight: 600;
+            background: var(--indigo-muted);
+            color: var(--indigo);
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        .trilha-count svg { width: 10px; height: 10px; }
+
+        /* ── Empty state ── */
+        .trilhas-empty {
+            grid-column: 1 / -1;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 3.5rem;
+            text-align: center;
+            color: var(--text-3);
+            font-size: 0.8125rem;
+        }
+
+        /* ── Management Panel ── */
+        .mgmt-panel {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+        .mgmt-panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        .mgmt-panel-title {
+            font-size: 0.9375rem;
+            font-weight: 600;
+            letter-spacing: -0.01em;
+            color: var(--text-1);
+        }
+        .mgmt-panel-title em {
+            font-style: normal;
+            color: var(--indigo);
+        }
+        .mgmt-panel-body { padding: 0; }
+
+        /* ── Sequence table ── */
+        .seq-table { width: 100%; border-collapse: collapse; font-size: 0.8125rem; }
+        .seq-table thead th {
+            padding: 0.625rem 1.25rem;
+            font-size: 0.6875rem; font-weight: 600;
+            letter-spacing: 0.07em; text-transform: uppercase;
+            color: var(--text-3);
+            border-bottom: 1px solid var(--border);
+        }
+        .seq-table tbody td {
+            padding: 0.75rem 1.25rem;
+            color: var(--text-1);
+            border-bottom: 1px solid var(--border);
+            vertical-align: middle;
+        }
+        .seq-table tbody tr:last-child td { border-bottom: none; }
+        .seq-table tbody tr:hover td { background: rgba(255,255,255,0.02); }
+        .seq-num {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 26px; height: 26px;
+            border-radius: 50%;
+            background: var(--indigo-muted);
+            color: var(--indigo);
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body>
+<div class="app-shell">
+
+    <!-- sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <i data-lucide="zap"></i>
+            <span class="sidebar-brand-text">Plataforma</span>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="../index.html" class="sidebar-link">
+                <i data-lucide="layout-dashboard"></i>
+                <span class="sidebar-link-label">Dashboard</span>
+            </a>
+            <a href="usuario.html" class="sidebar-link">
+                <i data-lucide="users"></i>
+                <span class="sidebar-link-label">Usuários</span>
+            </a>
+            <a href="academico.html" class="sidebar-link">
+                <i data-lucide="graduation-cap"></i>
+                <span class="sidebar-link-label">Acadêmico</span>
+            </a>
+            <a href="conteudo.html" class="sidebar-link">
+                <i data-lucide="layers"></i>
+                <span class="sidebar-link-label">Conteúdo</span>
+            </a>
+            <a href="trilha.html" class="sidebar-link active">
+                <i data-lucide="route"></i>
+                <span class="sidebar-link-label">Trilhas</span>
+            </a>
+            <a href="certificados.html" class="sidebar-link">
+                <i data-lucide="award"></i>
+                <span class="sidebar-link-label">Certificados</span>
+            </a>
+            <a href="financeiro.html" class="sidebar-link">
+                <i data-lucide="credit-card"></i>
+                <span class="sidebar-link-label">Financeiro</span>
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            <p class="sidebar-footer-text">LAB03 · v2.0</p>
+        </div>
+    </aside>
+
+    <!-- conteudo -->
+    <main class="main-content">
+
+        <!-- Page Header -->
+        <header class="page-header">
+            <div class="d-flex align-items-start justify-content-between gap-3 flex-wrap">
+                <div>
+                    <h1 class="page-title">Trilhas de Aprendizado</h1>
+                    <p class="page-subtitle">Agrupe cursos em jornadas de conhecimento sequenciais.</p>
+                </div>
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalTrilha">
+                    + Nova Trilha
+                </button>
+            </div>
+        </header>
+
+        <!-- Painel de Gerenciamento (aparece quando uma trilha é selecionada) -->
+        <div id="painelCursosTrilha" style="display:none;">
+            <div class="mgmt-panel">
+                <div class="mgmt-panel-header">
+                    <h3 class="mgmt-panel-title">
+                        Cursos da trilha — <em id="lblTituloTrilha"></em>
+                    </h3>
+                    <div class="d-flex align-items-center gap-2">
+                        <button class="btn btn-primary btn-sm" onclick="abrirModalAdicionarCurso()">
+                            + Adicionar Curso
+                        </button>
+                        <button class="btn btn-ghost btn-sm" onclick="fecharPainel()">
+                            Fechar
+                        </button>
+                    </div>
+                </div>
+                <div class="mgmt-panel-body">
+                    <div id="listaCursosTrilha"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bento Grid de Trilhas -->
+        <p class="section-label">Trilhas Cadastradas</p>
+        <div id="corpoTrilhas" class="trilhas-grid"></div>
+
+    </main>
+</div><!-- /app-shell -->
+
+<!-- modal nova trilha -->
+<div class="modal fade" id="modalTrilha" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header bg-dark text-white border-0">
+                <h5 class="modal-title fw-bold">
+                    <i class="bi bi-diagram-3 me-2 text-info"></i>Nova Trilha
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="mb-3">
+                    <label class="form-label small fw-bold text-muted">TÍTULO DA TRILHA</label>
+                    <input type="text" id="t-titulo" class="form-control" placeholder="Ex: Trilha Front-End">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label small fw-bold text-muted">CATEGORIA</label>
+                    <select id="t-categoria" class="form-select">
+                        <option value="">— Selecione uma categoria —</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label small fw-bold text-muted">DESCRIÇÃO (opcional)</label>
+                    <textarea id="t-descricao" class="form-control" rows="3"
+                              placeholder="Descreva o objetivo desta trilha..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer border-0 p-4 pt-0">
+                <button class="btn btn-primary w-100 fw-bold py-3" onclick="salvarTrilha()">
+                    CADASTRAR TRILHA
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- modal adicionar curso a trilha -->
+<div class="modal fade" id="modalAdicionarCurso" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header bg-dark text-white border-0">
+                <h5 class="modal-title fw-bold">
+                    <i class="bi bi-plus-circle me-2 text-success"></i>Adicionar Curso à Trilha
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <p class="text-muted small mb-3">
+                    Trilha: <strong id="tc-nomeTrilha" class="text-white"></strong>
+                </p>
+                <div class="mb-3">
+                    <label class="form-label small fw-bold text-muted">CURSO</label>
+                    <select id="tc-curso" class="form-select">
+                        <option value="">— Selecione um curso —</option>
+                    </select>
+                    <div id="tc-aviso" class="text-warning small mt-2" style="display:none;">
+                        <i class="bi bi-exclamation-triangle me-1"></i>Todos os cursos já estão nesta trilha.
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label small fw-bold text-muted">ORDEM NA TRILHA</label>
+                    <input type="number" id="tc-ordem" class="form-control" min="1" value="1">
+                </div>
+            </div>
+            <div class="modal-footer border-0 p-4 pt-0">
+                <button class="btn btn-success w-100 fw-bold py-3" onclick="salvarVinculo()">
+                    ADICIONAR À TRILHA
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="../js/utils.js"></script>
+<script src="../modules/usuario/usuario.js"></script>
+<script src="../modules/usuario/usuarioController.js"></script>
+<script src="../modules/categoria/categoria.js"></script>
+<script src="../modules/categoria/categoriaController.js"></script>
+<script src="../modules/curso/curso.js"></script>
+<script src="../modules/curso/cursoController.js"></script>
+<script src="../modules/trilha/trilha.js"></script>
+<script src="../modules/trilha/trilhaController.js"></script>
+<script src="../modules/trilhaCurso/trilhaCurso.js"></script>
+<script src="../modules/trilhaCurso/trilhaCursoController.js"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+
+<script>
+    // ícones svg inline
+    const SVG = {
+        trash: `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>`,
+        xCircle: `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>`,
+        layers: `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>`
+    };
+
+    const catCtrl        = new CategoriaController();
+    const cursoCtrl      = new CursoController();
+    const trilhaCtrl     = new TrilhaController();
+    const trilhaCursoCtrl = new TrilhaCursoController();
+
+    let selectedTrilhaId = null;
+
+    const nivelBadge = {
+        'Iniciante': 'badge-success',
+        'Intermediário': 'badge-warning',
+        'Avançado': 'badge-danger'
+    };
+
+    // renderizar bento grid de trilhas
+    const renderTrilhas = () => {
+        const trilhas = trilhaCtrl.listarTodas();
+        const grid    = document.getElementById('corpoTrilhas');
+
+        if (trilhas.length === 0) {
+            grid.innerHTML = `<div class="trilhas-empty">Nenhuma trilha cadastrada ainda.<br>Crie a primeira jornada de aprendizado.</div>`;
+            return;
+        }
+
+        grid.innerHTML = trilhas.map(t => {
+            const cat         = catCtrl.buscarPorId(t.ID_Categoria);
+            const totalCursos = trilhaCursoCtrl.listarPorTrilha(t.ID_Trilha).length;
+
+            return `
+            <div class="bento-card trilha-card">
+                <div class="trilha-card-top">
+                    <div style="min-width:0">
+                        <h3 class="trilha-name">${t.Titulo}</h3>
+                        ${cat
+                            ? `<span class="badge badge-ghost" style="font-size:.65rem">${cat.Nome}</span>`
+                            : `<span class="badge badge-ghost" style="font-size:.65rem;opacity:.4">Sem categoria</span>`
+                        }
+                    </div>
+                    <div class="trilha-count">
+                        ${SVG.layers}
+                        ${totalCursos} ${totalCursos === 1 ? 'curso' : 'cursos'}
+                    </div>
+                </div>
+                <p class="trilha-desc">${t.Descricao || 'Sem descrição definida.'}</p>
+                <div class="trilha-card-footer">
+                    <button class="btn btn-ghost btn-sm" onclick="gerenciarTrilha(${t.ID_Trilha})">
+                        Gerenciar Cursos
+                    </button>
+                    <button class="btn btn-icon" onclick="removerTrilha(${t.ID_Trilha})"
+                            title="Excluir trilha" style="color:var(--text-3)">
+                        ${SVG.trash}
+                    </button>
+                </div>
+            </div>`;
+        }).join('');
+    };
+
+    // painel de gerenciamento de cursos
+    const gerenciarTrilha = (id) => {
+        selectedTrilhaId = id;
+        renderCursosDaTrilha();
+        const painel = document.getElementById('painelCursosTrilha');
+        painel.style.display = 'block';
+        painel.scrollIntoView({ behavior: 'smooth' });
+    };
+
+    const fecharPainel = () => {
+        document.getElementById('painelCursosTrilha').style.display = 'none';
+        selectedTrilhaId = null;
+    };
+
+    const renderCursosDaTrilha = () => {
+        const trilha  = trilhaCtrl.buscarPorId(selectedTrilhaId);
+        document.getElementById('lblTituloTrilha').textContent = trilha.Titulo;
+
+        const vinculos = trilhaCursoCtrl.listarPorTrilha(selectedTrilhaId);
+        const div      = document.getElementById('listaCursosTrilha');
+
+        if (vinculos.length === 0) {
+            div.innerHTML = `
+                <div style="padding:2.5rem;text-align:center;color:var(--text-3);font-size:.8125rem">
+                    Nenhum curso adicionado a esta trilha ainda.
+                </div>`;
+            return;
+        }
+
+        div.innerHTML = `
+            <table class="seq-table">
+                <thead>
+                    <tr>
+                        <th style="width:72px">Ordem</th>
+                        <th>Curso</th>
+                        <th>Nível</th>
+                        <th>Categoria</th>
+                        <th style="width:60px;text-align:center">Ação</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${vinculos.map(tc => {
+                        const curso = cursoCtrl.buscarPorId(tc.ID_Curso);
+                        const cat   = curso ? catCtrl.buscarPorId(curso.ID_Categoria) : null;
+                        const nvl   = curso ? curso.Nivel : null;
+                        return `
+                        <tr>
+                            <td><span class="seq-num">${tc.Ordem}</span></td>
+                            <td>
+                                <div class="fw-semibold" style="font-size:.875rem">
+                                    ${curso ? curso.Titulo : '<span style="color:var(--red)">Curso removido</span>'}
+                                </div>
+                            </td>
+                            <td>
+                                ${nvl ? `<span class="badge ${nivelBadge[nvl] || 'badge-ghost'}">${nvl}</span>` : '—'}
+                            </td>
+                            <td style="font-size:.75rem;color:var(--text-2)">
+                                ${cat ? cat.Nome : '—'}
+                            </td>
+                            <td style="text-align:center">
+                                <button class="btn btn-icon" onclick="removerVinculo(${tc.ID_Curso})"
+                                        title="Remover da trilha" style="color:var(--text-3)">
+                                    ${SVG.xCircle}
+                                </button>
+                            </td>
+                        </tr>`;
+                    }).join('')}
+                </tbody>
+            </table>`;
+    };
+
+    // modal nova trilha
+    const prepararModalTrilha = () => {
+        const cats = catCtrl.listarTodas();
+        document.getElementById('t-categoria').innerHTML =
+            '<option value="">— Selecione uma categoria —</option>'
+            + cats.map(c => `<option value="${c.ID_Categoria}">${c.Nome}</option>`).join('');
+    };
+
+    const salvarTrilha = () => {
+        const titulo      = document.getElementById('t-titulo').value;
+        const idCategoria = document.getElementById('t-categoria').value;
+        const descricao   = document.getElementById('t-descricao').value;
+        try {
+            trilhaCtrl.cadastrar(titulo, descricao, idCategoria);
+            document.getElementById('t-titulo').value    = '';
+            document.getElementById('t-descricao').value = '';
+            document.getElementById('t-categoria').value = '';
+            bootstrap.Modal.getInstance(document.getElementById('modalTrilha')).hide();
+            renderTrilhas();
+        } catch (erro) {
+            alert(erro.message);
+        }
+    };
+
+    // modal adicionar curso
+    const abrirModalAdicionarCurso = () => {
+        const trilha = trilhaCtrl.buscarPorId(selectedTrilhaId);
+        document.getElementById('tc-nomeTrilha').textContent = trilha.Titulo;
+
+        const jaVinculados = trilhaCursoCtrl.listarPorTrilha(selectedTrilhaId).map(tc => tc.ID_Curso);
+        const disponiveis  = cursoCtrl.listarTodos().filter(c => !jaVinculados.includes(c.ID_Curso));
+
+        const sel   = document.getElementById('tc-curso');
+        const aviso = document.getElementById('tc-aviso');
+
+        if (disponiveis.length === 0) {
+            sel.innerHTML = '<option value="">Nenhum curso disponível</option>';
+            sel.disabled  = true;
+            aviso.style.display = 'block';
+        } else {
+            sel.disabled = false;
+            aviso.style.display = 'none';
+            sel.innerHTML = '<option value="">— Selecione um curso —</option>'
+                + disponiveis.map(c => `<option value="${c.ID_Curso}">${c.Titulo}</option>`).join('');
+        }
+
+        const proxOrdem = trilhaCursoCtrl.listarPorTrilha(selectedTrilhaId).length + 1;
+        document.getElementById('tc-ordem').value = proxOrdem;
+
+        new bootstrap.Modal(document.getElementById('modalAdicionarCurso')).show();
+    };
+
+    const salvarVinculo = () => {
+        const idCurso = document.getElementById('tc-curso').value;
+        const ordem   = document.getElementById('tc-ordem').value;
+        try {
+            trilhaCursoCtrl.vincular(selectedTrilhaId, idCurso, ordem);
+            bootstrap.Modal.getInstance(document.getElementById('modalAdicionarCurso')).hide();
+            renderTrilhas();
+            renderCursosDaTrilha();
+        } catch (erro) {
+            alert(erro.message);
+        }
+    };
+
+    const removerVinculo = (idCurso) => {
+        if (confirm('Remover este curso da trilha?')) {
+            trilhaCursoCtrl.desvincular(selectedTrilhaId, idCurso);
+            renderTrilhas();
+            renderCursosDaTrilha();
+        }
+    };
+
+    // remover trilha (cascade)
+    const removerTrilha = (id) => {
+        if (confirm('Excluir esta trilha? Os vínculos com cursos também serão removidos.')) {
+            trilhaCursoCtrl.desvincularTodosDaTrilha(id);
+            trilhaCtrl.remover(id);
+            if (selectedTrilhaId === id) fecharPainel();
+            renderTrilhas();
+        }
+    };
+
+    // init
+    window.onload = () => {
+        lucide.createIcons();
+        catCtrl.inicializarSemente();
+        prepararModalTrilha();
+        renderTrilhas();
+        document.getElementById('modalTrilha').addEventListener('show.bs.modal', prepararModalTrilha);
+    };
+</script>
+
+</body>
+</html>

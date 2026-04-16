@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Usuários · Plataforma de Cursos</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        /* ── Perfil Toggle (modal) ── */
+        .perfil-toggle {
+            display: flex;
+            gap: 0.5rem;
+        }
+        .perfil-toggle .btn-check + .btn {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.45rem;
+            padding: 0.55rem 1rem;
+            border-radius: 999px;
+            border: 1px solid var(--border-strong);
+            background: var(--surface-2);
+            color: var(--text-2);
+            font-size: 0.83rem;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+            transition: border-color 0.15s, background 0.15s, color 0.15s;
+            cursor: pointer;
+        }
+        .perfil-toggle .btn-check:checked + .btn {
+            border-color: var(--indigo);
+            background: var(--indigo-muted);
+            color: var(--text-1);
+        }
+        /* ── Perfil Badge (tabela) ── */
+        .perfil-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.28rem;
+            padding: 0.13rem 0.55rem;
+            border-radius: 999px;
+            font-size: 0.62rem;
+            font-weight: 600;
+            letter-spacing: 0.03em;
+            white-space: nowrap;
+            vertical-align: middle;
+        }
+        .badge-aluno {
+            background: rgba(99, 102, 241, 0.1);
+            color: #818cf8;
+            border: 1px solid rgba(99, 102, 241, 0.18);
+        }
+        .badge-instrutor {
+            background: rgba(251, 191, 36, 0.1);
+            color: #fbbf24;
+            border: 1px solid rgba(251, 191, 36, 0.2);
+        }
+    </style>
+</head>
+<body>
+<div class="app-shell">
+
+    <!-- sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <i data-lucide="zap"></i>
+            <span class="sidebar-brand-text">Plataforma</span>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="../index.html" class="sidebar-link">
+                <i data-lucide="layout-dashboard"></i>
+                <span class="sidebar-link-label">Dashboard</span>
+            </a>
+            <a href="usuario.html" class="sidebar-link active">
+                <i data-lucide="users"></i>
+                <span class="sidebar-link-label">Usuários</span>
+            </a>
+            <a href="academico.html" class="sidebar-link">
+                <i data-lucide="graduation-cap"></i>
+                <span class="sidebar-link-label">Acadêmico</span>
+            </a>
+            <a href="conteudo.html" class="sidebar-link">
+                <i data-lucide="layers"></i>
+                <span class="sidebar-link-label">Conteúdo</span>
+            </a>
+            <a href="trilha.html" class="sidebar-link">
+                <i data-lucide="route"></i>
+                <span class="sidebar-link-label">Trilhas</span>
+            </a>
+            <a href="certificados.html" class="sidebar-link">
+                <i data-lucide="award"></i>
+                <span class="sidebar-link-label">Certificados</span>
+            </a>
+            <a href="financeiro.html" class="sidebar-link">
+                <i data-lucide="credit-card"></i>
+                <span class="sidebar-link-label">Financeiro</span>
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            <p class="sidebar-footer-text">LAB03 · v2.0</p>
+        </div>
+    </aside>
+
+    <!-- conteudo -->
+    <main class="main-content">
+
+        <!-- Header -->
+        <header class="page-header">
+            <div class="d-flex align-items-start justify-content-between gap-3 flex-wrap">
+                <div>
+                    <h1 class="page-title">Usuários do Sistema</h1>
+                    <p class="page-subtitle">Cadastro e gestão de alunos e instrutores.</p>
+                </div>
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalUsuario">
+                    <i class="bi bi-person-plus-fill"></i> Novo Usuário
+                </button>
+            </div>
+        </header>
+
+        <!-- Tabela de Usuários -->
+        <div class="table-card mb-4">
+            <div class="p-3 border-bottom bg-light d-flex align-items-center gap-2">
+                <i class="bi bi-people text-muted"></i>
+                <span class="fw-semibold text-sm">Lista de Usuários</span>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light text-muted">
+                        <tr>
+                            <th class="ps-4">ID</th>
+                            <th>Nome Completo</th>
+                            <th>E-mail</th>
+                            <th>Senha (Hash)</th>
+                            <th>Data Cadastro</th>
+                            <th class="text-center pe-4">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="corpoUsuarios"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Painel de Matrículas -->
+        <div id="painelMatriculas" style="display:none;">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+                <h4 class="section-title mb-0">
+                    <i class="bi bi-journal-bookmark-fill me-2 text-success"></i>
+                    Matrículas de: <span id="lblNomeUsuario" class="text-white"></span>
+                </h4>
+                <button class="btn btn-ghost btn-sm" onclick="fecharPainelMatriculas()">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+            <div id="listaMatriculas"></div>
+        </div>
+
+    </main>
+</div><!-- /app-shell -->
+
+<!-- modal novo usuario -->
+<div class="modal fade" id="modalUsuario" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header bg-dark text-white border-0">
+                <h5 class="modal-title fw-bold">
+                    <i class="bi bi-shield-lock me-2 text-warning"></i>Novo Usuário
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="mb-3">
+                    <label class="form-label small fw-bold text-muted">NOME COMPLETO</label>
+                    <input type="text" id="u-nome" class="form-control" placeholder="Ex: Rodrigo Vieira">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label small fw-bold text-muted">E-MAIL</label>
+                    <input type="email" id="u-email" class="form-control" placeholder="exemplo@email.com">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label small fw-bold text-muted">SENHA</label>
+                    <input type="password" id="u-senha" class="form-control" placeholder="Mínimo 4 caracteres">
+                </div>
+                <div class="mb-1">
+                    <label class="form-label small fw-bold text-muted">PERFIL</label>
+                    <div class="perfil-toggle">
+                        <input type="radio" class="btn-check" name="u-perfil" id="p-aluno"
+                               value="aluno" autocomplete="off" checked>
+                        <label class="btn" for="p-aluno">
+                            <i data-lucide="user" style="width:13px;height:13px;stroke-width:2.25"></i>
+                            Aluno
+                        </label>
+                        <input type="radio" class="btn-check" name="u-perfil" id="p-instrutor"
+                               value="instrutor" autocomplete="off">
+                        <label class="btn" for="p-instrutor">
+                            <i data-lucide="mic" style="width:13px;height:13px;stroke-width:2.25"></i>
+                            Instrutor
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer border-0 p-4 pt-0">
+                <button class="btn btn-primary w-100 fw-bold py-3" onclick="salvarNovoUsuario()">
+                    CRIAR CONTA PROTEGIDA
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- modal matricula -->
+<div class="modal fade" id="modalMatricula" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header bg-dark text-white border-0">
+                <h5 class="modal-title fw-bold">
+                    <i class="bi bi-journal-plus me-2 text-success"></i>Nova Matrícula
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <p class="text-muted small mb-3">
+                    Aluno: <strong id="mat-nomeUsuario" class="text-white"></strong>
+                </p>
+                <div id="mat-aviso-assinatura" class="alert alert-danger py-2 small mb-3" style="display:none;">
+                    <i class="bi bi-shield-lock-fill me-1"></i>
+                    <strong>Assinatura necessária.</strong>
+                    Este usuário não possui um plano ativo.
+                    <a href="financeiro.html" class="alert-link ms-1">Adquirir plano →</a>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label small fw-bold text-muted">SELECIONAR CURSO</label>
+                    <select id="mat-curso" class="form-select">
+                        <option value="">— Selecione um curso —</option>
+                    </select>
+                </div>
+                <div id="mat-aviso" class="text-warning small" style="display:none;">
+                    <i class="bi bi-exclamation-triangle me-1"></i>
+                    Todos os cursos disponíveis já estão matriculados para este aluno.
+                </div>
+            </div>
+            <div class="modal-footer border-0 p-4 pt-0">
+                <button id="btn-confirmar-matricula" class="btn btn-success w-100 fw-bold py-3" onclick="salvarMatricula()">
+                    CONFIRMAR MATRÍCULA
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="../js/utils.js"></script>
+<script src="../modules/usuario/usuario.js"></script>
+<script src="../modules/usuario/usuarioController.js"></script>
+<script src="../modules/categoria/categoria.js"></script>
+<script src="../modules/categoria/categoriaController.js"></script>
+<script src="../modules/curso/curso.js"></script>
+<script src="../modules/curso/cursoController.js"></script>
+<script src="../modules/matricula/matricula.js"></script>
+<script src="../modules/matricula/matriculaController.js"></script>
+<script src="../modules/assinatura/assinatura.js"></script>
+<script src="../modules/assinatura/assinaturaController.js"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+
+<script>
+    const userCtrl       = new UsuarioController();
+    const cursoCtrl      = new CursoController();
+    const matriculaCtrl  = new MatriculaController();
+    const assinaturaCtrl = new AssinaturaController();
+
+    let selectedUsuarioId = null;
+
+    // ── Helper: badge de perfil ──
+    const perfilBadge = (perfil) => perfil === 'instrutor'
+        ? `<span class="perfil-badge badge-instrutor"><i class="bi bi-mic-fill"></i> Instrutor</span>`
+        : `<span class="perfil-badge badge-aluno"><i class="bi bi-mortarboard-fill"></i> Aluno</span>`;
+
+    // renderizar tabela de usuarios
+    const renderizar = () => {
+        const usuarios = userCtrl.listarTodos();
+        const corpo = document.getElementById('corpoUsuarios');
+
+        corpo.innerHTML = usuarios.map(u => {
+            const totalMat = matriculaCtrl.listarPorUsuario(u.ID_Usuario).length;
+            return `
+            <tr>
+                <td class="ps-4 text-muted small">#${u.ID_Usuario}</td>
+                <td>
+                    <div class="fw-bold d-flex align-items-center gap-2">
+                        ${u.NomeCompleto}
+                        ${perfilBadge(u.Perfil)}
+                    </div>
+                </td>
+                <td class="text-muted small">${u.Email}</td>
+                <td><code class="small" style="color: var(--indigo)">${u.SenhaHash}</code></td>
+                <td class="text-muted small">${u.DataCadastro}</td>
+                <td class="text-center pe-4">
+                    <button class="btn btn-sm btn-outline-success border-0 me-1" title="Ver / Adicionar Matrículas"
+                            onclick="abrirPainelMatriculas(${u.ID_Usuario})">
+                        <i class="bi bi-journal-bookmark"></i>
+                        <span class="badge bg-success ms-1" style="font-size:.65rem">${totalMat}</span>
+                    </button>
+                    <button class="btn btn-sm btn-outline-primary border-0 me-1" title="Matricular em Curso"
+                            onclick="abrirModalMatricula(${u.ID_Usuario})">
+                        <i class="bi bi-journal-plus"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger border-0" title="Excluir"
+                            onclick="removerUsuario(${u.ID_Usuario})">
+                        <i class="bi bi-trash3"></i>
+                    </button>
+                </td>
+            </tr>`;
+        }).join('') || '<tr><td colspan="6" class="text-center py-5 text-muted">Nenhum usuário cadastrado.</td></tr>';
+    };
+
+    // abrir modal matricula
+    const abrirModalMatricula = (idUsuario) => {
+        selectedUsuarioId = idUsuario;
+        const usuario = userCtrl.buscarPorId(idUsuario);
+        document.getElementById('mat-nomeUsuario').textContent = usuario.NomeCompleto;
+
+        const temAssinatura = assinaturaCtrl.listarTodos().some(
+            a => a.ID_Usuario === idUsuario && assinaturaCtrl.estaAtiva(a)
+        );
+        const avisoAss    = document.getElementById('mat-aviso-assinatura');
+        const btnConfirmar = document.getElementById('btn-confirmar-matricula');
+        avisoAss.style.display  = temAssinatura ? 'none'  : 'block';
+        btnConfirmar.disabled   = !temAssinatura;
+
+        const jaMatriculados    = matriculaCtrl.listarPorUsuario(idUsuario).map(m => m.ID_Curso);
+        const cursosDisponiveis = cursoCtrl.listarTodos().filter(c => !jaMatriculados.includes(c.ID_Curso));
+
+        const sel   = document.getElementById('mat-curso');
+        const aviso = document.getElementById('mat-aviso');
+
+        if (cursosDisponiveis.length === 0) {
+            sel.innerHTML = '<option value="">Nenhum curso disponível</option>';
+            sel.disabled = true;
+            aviso.style.display = 'block';
+        } else {
+            sel.disabled = false;
+            aviso.style.display = 'none';
+            sel.innerHTML = '<option value="">— Selecione um curso —</option>'
+                + cursosDisponiveis.map(c => `<option value="${c.ID_Curso}">${c.Titulo}</option>`).join('');
+        }
+
+        new bootstrap.Modal(document.getElementById('modalMatricula')).show();
+    };
+
+    // salvar matricula
+    const salvarMatricula = () => {
+        const idCurso = document.getElementById('mat-curso').value;
+        try {
+            matriculaCtrl.cadastrar(selectedUsuarioId, idCurso);
+            bootstrap.Modal.getInstance(document.getElementById('modalMatricula')).hide();
+            renderizar();
+            if (painelMatriculasAberto()) renderMatriculasUsuario(selectedUsuarioId);
+        } catch (erro) {
+            alert(erro.message);
+        }
+    };
+
+    // painel de matriculas
+    const painelMatriculasAberto = () =>
+        document.getElementById('painelMatriculas').style.display !== 'none';
+
+    const abrirPainelMatriculas = (idUsuario) => {
+        selectedUsuarioId = idUsuario;
+        renderMatriculasUsuario(idUsuario);
+        document.getElementById('painelMatriculas').style.display = 'block';
+        document.getElementById('painelMatriculas').scrollIntoView({ behavior: 'smooth' });
+    };
+
+    const fecharPainelMatriculas = () => {
+        document.getElementById('painelMatriculas').style.display = 'none';
+        selectedUsuarioId = null;
+    };
+
+    const renderMatriculasUsuario = (idUsuario) => {
+        const usuario    = userCtrl.buscarPorId(idUsuario);
+        const matriculas = matriculaCtrl.listarPorUsuario(idUsuario);
+        document.getElementById('lblNomeUsuario').textContent = usuario.NomeCompleto;
+
+        const lista = document.getElementById('listaMatriculas');
+        if (matriculas.length === 0) {
+            lista.innerHTML = `<div class="table-card p-4 text-center text-muted">Nenhuma matrícula encontrada para este usuário.</div>`;
+            return;
+        }
+
+        lista.innerHTML = `
+            <div class="table-card">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light text-muted">
+                            <tr>
+                                <th class="ps-4">ID</th>
+                                <th>Curso</th>
+                                <th>Nível</th>
+                                <th>Data Matrícula</th>
+                                <th>Conclusão</th>
+                                <th class="text-center pe-4">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${matriculas.map(m => {
+                                const curso = cursoCtrl.buscarPorId(m.ID_Curso);
+                                const nivelBadge = { 'Iniciante': 'bg-success', 'Intermediário': 'bg-warning text-dark', 'Avançado': 'bg-danger' };
+                                return `
+                                <tr>
+                                    <td class="ps-4 text-muted small">#${m.ID_Matricula}</td>
+                                    <td><div class="fw-bold">${curso ? curso.Titulo : '<span class="text-danger">Curso removido</span>'}</div></td>
+                                    <td>${curso ? `<span class="badge ${nivelBadge[curso.Nivel] || 'bg-secondary'}">${curso.Nivel}</span>` : '—'}</td>
+                                    <td class="text-muted small">${m.DataMatricula}</td>
+                                    <td class="text-muted small">${m.DataConclusao || '<span class="badge bg-primary">Em andamento</span>'}</td>
+                                    <td class="text-center pe-4">
+                                        <button class="btn btn-sm btn-outline-danger border-0" title="Cancelar Matrícula"
+                                                onclick="cancelarMatricula(${m.ID_Matricula})">
+                                            <i class="bi bi-x-circle"></i>
+                                        </button>
+                                    </td>
+                                </tr>`;
+                            }).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            </div>`;
+    };
+
+    const cancelarMatricula = (id) => {
+        if (confirm('Deseja cancelar esta matrícula?')) {
+            matriculaCtrl.remover(id);
+            renderizar();
+            renderMatriculasUsuario(selectedUsuarioId);
+        }
+    };
+
+    // salvar novo usuario
+    const salvarNovoUsuario = () => {
+        const nome   = document.getElementById('u-nome').value;
+        const email  = document.getElementById('u-email').value;
+        const senha  = document.getElementById('u-senha').value;
+        const perfil = document.querySelector('input[name="u-perfil"]:checked').value;
+        try {
+            userCtrl.cadastrar(nome, email, senha, perfil);
+            document.getElementById('u-nome').value    = '';
+            document.getElementById('u-email').value   = '';
+            document.getElementById('u-senha').value   = '';
+            document.getElementById('p-aluno').checked = true;
+            bootstrap.Modal.getInstance(document.getElementById('modalUsuario')).hide();
+            renderizar();
+        } catch (erro) {
+            alert(erro.message);
+        }
+    };
+
+    // remover usuario
+    const removerUsuario = (id) => {
+        if (confirm('Excluir este usuário? As matrículas vinculadas também serão removidas.')) {
+            matriculaCtrl.listarPorUsuario(id).forEach(m => matriculaCtrl.remover(m.ID_Matricula));
+            userCtrl.remover(id);
+            if (selectedUsuarioId === id) fecharPainelMatriculas();
+            renderizar();
+        }
+    };
+
+    // init
+    window.onload = () => {
+        lucide.createIcons();
+        renderizar();
+    };
+</script>
+
+</body>
+</html>
