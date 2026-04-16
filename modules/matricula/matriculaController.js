@@ -12,8 +12,11 @@ class MatriculaController {
     }
 
     validar(idUsuario, idCurso) {
-        if (!new UsuarioController().buscarPorId(idUsuario))
+        const usuario = new UsuarioController().buscarPorId(idUsuario);
+        if (!usuario)
             throw new Error('Usuário não encontrado.');
+        if (usuario.Perfil === 'instrutor')
+            throw new Error('Instrutores não podem se matricular em cursos.');
         if (!new CursoController().buscarPorId(idCurso))
             throw new Error('Curso não encontrado.');
         const jaCadastrado = this.listarTodos().some(

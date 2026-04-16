@@ -606,7 +606,8 @@
                                 <th>Vencimento</th>
                                 <th class="text-center">Status</th>
                                 <th>Pagamento</th>
-                                <th class="text-end pe-4">Valor</th>
+                                <th class="text-end">Valor</th>
+                                <th class="text-center pe-4">Ações</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -634,8 +635,14 @@
                                                <span class="text-muted small ms-1">${pag.DataPagamento}</span>`
                                             : '<span class="text-muted small">—</span>'}
                                     </td>
-                                    <td class="text-end pe-4 fw-bold text-success">
+                                    <td class="text-end fw-bold text-success">
                                         ${pag ? brl(pag.ValorPago) : '—'}
+                                    </td>
+                                    <td class="text-center pe-4">
+                                        <button class="btn btn-sm btn-outline-danger border-0" title="Cancelar assinatura"
+                                                onclick="cancelarAssinatura(${a.ID_Assinatura})">
+                                            <i class="bi bi-x-circle"></i>
+                                        </button>
                                     </td>
                                 </tr>`;
                             }).join('')}
@@ -664,6 +671,17 @@
             renderSimulador();
         } catch (erro) {
             alert(erro.message);
+        }
+    };
+
+    // cancelar assinatura
+    const cancelarAssinatura = (id) => {
+        if (confirm('Cancelar esta assinatura? O pagamento vinculado também será removido.')) {
+            const pag = pagamentoCtrl.buscarPorAssinatura(id);
+            if (pag) pagamentoCtrl.remover(pag.ID_Pagamento);
+            assinaturaCtrl.remover(id);
+            renderSimulador();
+            renderHistorico();
         }
     };
 
