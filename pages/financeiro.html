@@ -26,15 +26,31 @@
         .fin-selector {
             display: flex;
             align-items: center;
-            gap: 0.75rem;
-            padding: 0.875rem 1.25rem;
+            gap: 0.625rem;
+            padding: 0.625rem;
             border-bottom: 1px solid var(--border);
         }
+        .fin-selector-inner {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex: 1;
+            background: var(--surface-2);
+            border: 1px solid var(--border-strong);
+            border-radius: 12px;
+            padding: 0.55rem 0.875rem;
+            cursor: pointer;
+            transition: border-color 0.2s ease, background 0.2s ease;
+        }
+        .fin-selector-inner:hover {
+            border-color: var(--indigo);
+            background: var(--indigo-muted);
+        }
         .fin-selector svg {
-            width: 15px; height: 15px;
-            color: var(--text-3);
+            width: 14px; height: 14px;
+            color: var(--indigo);
             flex-shrink: 0;
-            stroke-width: 1.75;
+            stroke-width: 2;
         }
         .fin-selector select {
             flex: 1;
@@ -47,6 +63,10 @@
             cursor: pointer;
             -webkit-appearance: none;
             appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2300e676' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0 center;
+            padding-right: 1.25rem;
         }
         .fin-selector select option { background: var(--surface-2); color: var(--text-1); }
 
@@ -325,7 +345,7 @@
                         <i data-lucide="tags" style="width:15px;height:15px;color:var(--text-2);stroke-width:1.75"></i>
                         <span class="fw-semibold text-sm">Planos</span>
                     </div>
-                    <button class="btn btn-ghost btn-sm" data-bs-toggle="modal" data-bs-target="#modalPlano">
+                    <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modalPlano">
                         <i class="bi bi-plus-lg me-1"></i>Novo Plano
                     </button>
                 </div>
@@ -351,15 +371,16 @@
                     <span class="fw-semibold text-sm">Simulador de Assinatura</span>
                 </div>
                 <div class="fin-selector">
-                    <!-- user icon inline SVG -->
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-                         stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                        <circle cx="12" cy="7" r="4"/>
-                    </svg>
-                    <select id="selectUsuario" onchange="onUsuarioChange()">
-                        <option value="">Selecione um usuário</option>
-                    </select>
+                    <div class="fin-selector-inner">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                             stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                            <circle cx="12" cy="7" r="4"/>
+                        </svg>
+                        <select id="selectUsuario" onchange="onUsuarioChange()">
+                            <option value="">Selecione um usuário</option>
+                        </select>
+                    </div>
                 </div>
                 <div id="areaSimulador">
                     <div class="sim-empty">Selecione um usuário para ver os planos disponíveis.</div>

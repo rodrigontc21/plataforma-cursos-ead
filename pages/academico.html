@@ -71,7 +71,7 @@
                     <i data-lucide="tag" style="width:15px;height:15px;color:var(--text-2);stroke-width:1.75"></i>
                     <span class="fw-semibold text-sm">Categorias</span>
                 </div>
-                <button class="btn btn-ghost btn-sm" data-bs-toggle="modal" data-bs-target="#modalCategoria">
+                <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modalCategoria">
                     <i class="bi bi-plus-lg me-1"></i>Nova Categoria
                 </button>
             </div>
@@ -283,7 +283,7 @@
         const instrutores = userCtrl.listarInstrutores();
         document.getElementById('c-instrutor').innerHTML = instrutores.length > 0
             ? instrutores.map(u => `<option value="${u.ID_Usuario}">${u.NomeCompleto}</option>`).join('')
-            : '<option value="">Nenhum instrutor cadastrado — adicione em Usuários</option>';
+            : '<option value="">Nenhum instrutor cadastrado</option>';
 
         const categorias = catCtrl.listarTodas();
         document.getElementById('c-categoria').innerHTML = categorias.length > 0
