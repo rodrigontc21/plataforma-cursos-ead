@@ -262,7 +262,7 @@
                 <div class="mb-3">
                     <label class="form-label small fw-bold text-muted">CATEGORIA</label>
                     <select id="t-categoria" class="form-select">
-                        <option value="">— Selecione uma categoria —</option>
+                        <option value="">Selecione uma categoria</option>
                     </select>
                 </div>
                 <div class="mb-3">
@@ -297,7 +297,7 @@
                 <div class="mb-3">
                     <label class="form-label small fw-bold text-muted">CURSO</label>
                     <select id="tc-curso" class="form-select">
-                        <option value="">— Selecione um curso —</option>
+                        <option value="">Selecione um curso</option>
                     </select>
                     <div id="tc-aviso" class="text-warning small mt-2" style="display:none;">
                         <i class="bi bi-exclamation-triangle me-1"></i>Todos os cursos já estão nesta trilha.
@@ -471,7 +471,7 @@
     const prepararModalTrilha = () => {
         const cats = catCtrl.listarTodas();
         document.getElementById('t-categoria').innerHTML =
-            '<option value="">— Selecione uma categoria —</option>'
+            '<option value="">Selecione uma categoria</option>'
             + cats.map(c => `<option value="${c.ID_Categoria}">${c.Nome}</option>`).join('');
     };
 
@@ -487,7 +487,7 @@
             bootstrap.Modal.getInstance(document.getElementById('modalTrilha')).hide();
             renderTrilhas();
         } catch (erro) {
-            alert(erro.message);
+            mostrarToast(erro.message);
         }
     };
 
@@ -509,7 +509,7 @@
         } else {
             sel.disabled = false;
             aviso.style.display = 'none';
-            sel.innerHTML = '<option value="">— Selecione um curso —</option>'
+            sel.innerHTML = '<option value="">Selecione um curso</option>'
                 + disponiveis.map(c => `<option value="${c.ID_Curso}">${c.Titulo}</option>`).join('');
         }
 
@@ -528,26 +528,26 @@
             renderTrilhas();
             renderCursosDaTrilha();
         } catch (erro) {
-            alert(erro.message);
+            mostrarToast(erro.message);
         }
     };
 
     const removerVinculo = (idCurso) => {
-        if (confirm('Remover este curso da trilha?')) {
+        confirmar('Remover este curso da trilha?', () => {
             trilhaCursoCtrl.desvincular(selectedTrilhaId, idCurso);
             renderTrilhas();
             renderCursosDaTrilha();
-        }
+        });
     };
 
     // remover trilha (cascade)
     const removerTrilha = (id) => {
-        if (confirm('Excluir esta trilha? Os vínculos com cursos também serão removidos.')) {
+        confirmar('Excluir esta trilha? Os vínculos com cursos também serão removidos.', () => {
             trilhaCursoCtrl.desvincularTodosDaTrilha(id);
             trilhaCtrl.remover(id);
             if (selectedTrilhaId === id) fecharPainel();
             renderTrilhas();
-        }
+        });
     };
 
     // init

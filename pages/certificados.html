@@ -288,7 +288,7 @@
                 </div>
                 <span class="selector-label">Aluno</span>
                 <select id="selectUsuarioCert" class="form-select" onchange="onUsuarioChange()">
-                    <option value="">— Selecione o aluno para ver seus certificados —</option>
+                    <option value="">Selecione o aluno para ver seus certificados</option>
                 </select>
             </div>
         </div>
@@ -414,7 +414,7 @@
         const usuarios = userCtrl.listarTodos();
         const sel = document.getElementById('selectUsuarioCert');
         sel.innerHTML =
-            '<option value="">— Selecione o aluno para ver seus certificados —</option>'
+            '<option value="">Selecione o aluno para ver seus certificados</option>'
             + usuarios.map(u =>
                 `<option value="${u.ID_Usuario}" ${u.ID_Usuario === usuarioLogadoId ? 'selected' : ''}>${u.NomeCompleto}</option>`
               ).join('');
@@ -525,7 +525,7 @@
             renderAreaCursos();
             setTimeout(() => visualizarDiploma(idUsuario, idCurso), 300);
         } catch (erro) {
-            alert(erro.message);
+            mostrarToast(erro.message);
         }
     };
 

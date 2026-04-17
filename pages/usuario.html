@@ -125,7 +125,7 @@
 
         <!-- Tabela de Usuários -->
         <div class="table-card mb-4">
-            <div class="p-3 border-bottom bg-light d-flex align-items-center gap-2">
+            <div class="p-3 border-bottom d-flex align-items-center gap-2">
                 <i class="bi bi-people text-muted"></i>
                 <span class="fw-semibold text-sm">Lista de Usuários</span>
             </div>
@@ -236,7 +236,7 @@
                 <div class="mb-3">
                     <label class="form-label small fw-bold text-muted">SELECIONAR CURSO</label>
                     <select id="mat-curso" class="form-select">
-                        <option value="">— Selecione um curso —</option>
+                        <option value="">Selecione um curso</option>
                     </select>
                 </div>
                 <div id="mat-aviso" class="text-warning small" style="display:none;">
@@ -301,7 +301,8 @@
                 <td><code class="small" style="color: var(--indigo)">${u.SenhaHash}</code></td>
                 <td class="text-muted small">${u.DataCadastro}</td>
                 <td class="text-center pe-4">
-                    <button class="btn btn-sm btn-outline-success border-0 me-1" title="Ver / Adicionar Matrículas"
+                    ${u.Perfil === 'aluno' ? `
+                    <button class="btn btn-sm btn-outline-success border-0 me-1" title="Ver Matrículas"
                             onclick="abrirPainelMatriculas(${u.ID_Usuario})">
                         <i class="bi bi-journal-bookmark"></i>
                         <span class="badge bg-success ms-1" style="font-size:.65rem">${totalMat}</span>
@@ -309,7 +310,7 @@
                     <button class="btn btn-sm btn-outline-primary border-0 me-1" title="Matricular em Curso"
                             onclick="abrirModalMatricula(${u.ID_Usuario})">
                         <i class="bi bi-journal-plus"></i>
-                    </button>
+                    </button>` : ''}
                     <button class="btn btn-sm btn-outline-danger border-0" title="Excluir"
                             onclick="removerUsuario(${u.ID_Usuario})">
                         <i class="bi bi-trash3"></i>
@@ -346,7 +347,7 @@
         } else {
             sel.disabled = false;
             aviso.style.display = 'none';
-            sel.innerHTML = '<option value="">— Selecione um curso —</option>'
+            sel.innerHTML = '<option value="">Selecione um curso</option>'
                 + cursosDisponiveis.map(c => `<option value="${c.ID_Curso}">${c.Titulo}</option>`).join('');
         }
 
@@ -362,7 +363,7 @@
             renderizar();
             if (painelMatriculasAberto()) renderMatriculasUsuario(selectedUsuarioId);
         } catch (erro) {
-            alert(erro.message);
+            mostrarToast(erro.message);
         }
     };
 
@@ -433,11 +434,11 @@
     };
 
     const cancelarMatricula = (id) => {
-        if (confirm('Deseja cancelar esta matrícula?')) {
+        confirmar('Deseja cancelar esta matrícula?', () => {
             matriculaCtrl.remover(id);
             renderizar();
             renderMatriculasUsuario(selectedUsuarioId);
-        }
+        });
     };
 
     // salvar novo usuario
@@ -455,18 +456,18 @@
             bootstrap.Modal.getInstance(document.getElementById('modalUsuario')).hide();
             renderizar();
         } catch (erro) {
-            alert(erro.message);
+            mostrarToast(erro.message);
         }
     };
 
     // remover usuario
     const removerUsuario = (id) => {
-        if (confirm('Excluir este usuário? As matrículas vinculadas também serão removidas.')) {
+        confirmar('Excluir este usuário? As matrículas vinculadas também serão removidas.', () => {
             matriculaCtrl.listarPorUsuario(id).forEach(m => matriculaCtrl.remover(m.ID_Matricula));
             userCtrl.remover(id);
             if (selectedUsuarioId === id) fecharPainelMatriculas();
             renderizar();
-        }
+        });
     };
 
     // init

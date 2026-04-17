@@ -42,8 +42,11 @@ class AssinaturaController {
         const plano = new PlanoController().buscarPorId(idPlano);
         if (!plano)
             throw new Error('Plano não encontrado.');
-        if (this.verificarAtivaParaPlano(idUsuario, idPlano))
-            throw new Error(`O usuário já possui uma assinatura ativa no plano "${plano.Nome}".`);
+        const jaTemAtiva = this.listarTodos().some(
+            a => a.ID_Usuario === Number(idUsuario) && this.estaAtiva(a)
+        );
+        if (jaTemAtiva)
+            throw new Error('Este usuário já possui uma assinatura ativa. Cancele a assinatura atual antes de assinar um novo plano.');
 
         const inicio = new Date();
         const fim    = new Date(inicio);

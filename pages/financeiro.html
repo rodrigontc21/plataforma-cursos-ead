@@ -184,6 +184,59 @@
         .pag-row.pag-total .pag-label { color: var(--text-1); font-size: 0.78rem; }
         .pag-row.pag-total .pag-val { color: #4ade80; font-size: 1.05rem; font-weight: 800; letter-spacing: -0.02em; }
 
+        /* ── Payment detail area ── */
+        .pix-box {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+        .pix-qr img { border-radius: 8px; display: block; }
+        .pix-info { flex: 1; }
+        .pix-label { font-size: 0.65rem; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.06em; }
+        .pix-key { font-size: 0.82rem; color: var(--text-1); font-weight: 600; word-break: break-all; }
+        .pix-timer { font-size: 0.72rem; color: #4ade80; margin-top: 0.5rem; }
+        .boleto-box {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+        .boleto-barcode {
+            height: 48px;
+            display: flex;
+            align-items: stretch;
+            gap: 1px;
+            margin: 0.65rem 0;
+            overflow: hidden;
+            border-radius: 4px;
+        }
+        .boleto-barcode span { background: var(--text-1); }
+        .boleto-code {
+            font-family: monospace;
+            font-size: 0.7rem;
+            color: var(--text-2);
+            word-break: break-all;
+            text-align: center;
+        }
+        #area-metodo-detalhe .form-control {
+            background: var(--surface-2);
+            border-color: var(--border-strong);
+            color: var(--text-1);
+        }
+        #area-metodo-detalhe .form-control:focus {
+            background: var(--surface-2);
+            border-color: var(--indigo);
+            color: var(--text-1);
+            box-shadow: 0 0 0 3px rgba(99,102,241,0.15);
+        }
+        #area-metodo-detalhe { margin-top: 1rem; }
+
         /* ── Payment method toggle (modal) ── */
         .pay-methods {
             display: flex;
@@ -305,7 +358,7 @@
                         <circle cx="12" cy="7" r="4"/>
                     </svg>
                     <select id="selectUsuario" onchange="onUsuarioChange()">
-                        <option value="">— Selecione um usuário —</option>
+                        <option value="">Selecione um usuário</option>
                     </select>
                 </div>
                 <div id="areaSimulador">
@@ -406,21 +459,27 @@
                 <!-- Método de pagamento -->
                 <label class="form-label small fw-bold text-muted d-block mb-2">MÉTODO DE PAGAMENTO</label>
                 <div class="pay-methods">
-                    <input type="radio" class="btn-check" name="metodo" id="metPix"    value="PIX"    autocomplete="off" checked>
+                    <input type="radio" class="btn-check" name="metodo" id="metPix"    value="PIX"    autocomplete="off" checked
+                           onchange="atualizarDetalhesPagamento()">
                     <label class="btn d-flex flex-column align-items-center" for="metPix">
                         <i class="bi bi-qr-code" style="font-size:1.15rem"></i>PIX
                     </label>
 
-                    <input type="radio" class="btn-check" name="metodo" id="metCartao" value="Cartão" autocomplete="off">
+                    <input type="radio" class="btn-check" name="metodo" id="metCartao" value="Cartão" autocomplete="off"
+                           onchange="atualizarDetalhesPagamento()">
                     <label class="btn d-flex flex-column align-items-center" for="metCartao">
                         <i class="bi bi-credit-card" style="font-size:1.15rem"></i>Cartão
                     </label>
 
-                    <input type="radio" class="btn-check" name="metodo" id="metBoleto" value="Boleto" autocomplete="off">
+                    <input type="radio" class="btn-check" name="metodo" id="metBoleto" value="Boleto" autocomplete="off"
+                           onchange="atualizarDetalhesPagamento()">
                     <label class="btn d-flex flex-column align-items-center" for="metBoleto">
                         <i class="bi bi-upc" style="font-size:1.15rem"></i>Boleto
                     </label>
                 </div>
+
+                <!-- detalhes dinâmicos do método -->
+                <div id="area-metodo-detalhe"></div>
 
             </div>
             <div class="modal-footer border-0 p-4 pt-0">
@@ -487,7 +546,7 @@
     const popularSelectUsuario = () => {
         const usuarios = userCtrl.listarTodos();
         const sel = document.getElementById('selectUsuario');
-        sel.innerHTML = '<option value="">— Selecione um usuário —</option>'
+        sel.innerHTML = '<option value="">Selecione um usuário</option>'
             + usuarios.map(u =>
                 `<option value="${u.ID_Usuario}" ${u.ID_Usuario === usuarioLogadoId ? 'selected' : ''}>${u.NomeCompleto}</option>`
               ).join('');
@@ -558,8 +617,107 @@
         document.getElementById('pag-valor').textContent   = brl(planoSelecionado.Preco);
 
         document.getElementById('metPix').checked = true;
+        atualizarDetalhesPagamento();
 
         new bootstrap.Modal(document.getElementById('modalPagamento')).show();
+    };
+
+    // detalhes do método de pagamento
+    const gerarCodigoBoleto = () => {
+        const n = (d) => Math.floor(Math.random() * Math.pow(10, d)).toString().padStart(d, '0');
+        const valor = planoSelecionado ? Math.round(planoSelecionado.Preco * 100).toString().padStart(10, '0') : '0000000000';
+        return `3474 8${n(4)} ${n(4)} 0000 0 ${n(4)} ${n(4)} ${n(4)} 3 6800 0000 ${valor}`;
+    };
+
+    const gerarBarcode = () => {
+        let html = '<div class="boleto-barcode">';
+        const pattern = [1,3,1,2,3,1,1,2,1,3,2,1,1,3,1,2,1,3,1,1,2,3,1,1,2,1,3,2,1,1,
+                         3,1,2,1,1,3,2,1,3,1,1,2,1,1,3,2,1,3,1,1,2,3,1,1,2,1,3,1,2,1];
+        pattern.forEach((w, i) => {
+            const opaco = i % 2 === 0;
+            html += `<span style="flex:${w};opacity:${opaco ? 1 : 0.08}"></span>`;
+        });
+        html += '</div>';
+        return html;
+    };
+
+    const atualizarDetalhesPagamento = () => {
+        const metodo = document.querySelector('input[name="metodo"]:checked').value;
+        const area   = document.getElementById('area-metodo-detalhe');
+
+        if (metodo === 'PIX') {
+            area.innerHTML = `
+                <div class="pix-box">
+                    <div class="pix-qr">
+                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=contato%40plataforma.com&bgcolor=12121e&color=ffffff&margin=6"
+                             width="100" height="100" alt="QR Code PIX">
+                    </div>
+                    <div class="pix-info">
+                        <div class="pix-label">Chave PIX</div>
+                        <div class="pix-key">contato@plataforma.com</div>
+                        <div class="pix-label mt-2">Tipo</div>
+                        <div class="pix-key" style="font-size:.78rem">E-mail</div>
+                        <div class="pix-timer mt-2"><i class="bi bi-clock me-1"></i>Válido por 30 minutos</div>
+                    </div>
+                </div>`;
+
+        } else if (metodo === 'Cartão') {
+            area.innerHTML = `
+                <div class="d-flex flex-column gap-2 mt-3">
+                    <div>
+                        <label class="form-label small fw-bold text-muted">NÚMERO DO CARTÃO</label>
+                        <input type="text" id="card-numero" class="form-control" placeholder="0000 0000 0000 0000"
+                               maxlength="19" oninput="formatarCartao(this)">
+                    </div>
+                    <div>
+                        <label class="form-label small fw-bold text-muted">NOME NO CARTÃO</label>
+                        <input type="text" id="card-nome" class="form-control" placeholder="NOME SOBRENOME"
+                               style="text-transform:uppercase" oninput="this.value=this.value.toUpperCase()">
+                    </div>
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <label class="form-label small fw-bold text-muted">VALIDADE</label>
+                            <input type="text" id="card-validade" class="form-control" placeholder="MM/AA"
+                                   maxlength="5" oninput="formatarValidade(this)">
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label small fw-bold text-muted">CVV</label>
+                            <input type="text" id="card-cvv" class="form-control" placeholder="000"
+                                   maxlength="3" oninput="this.value=this.value.replace(/\\D/g,'')">
+                        </div>
+                    </div>
+                </div>`;
+
+        } else if (metodo === 'Boleto') {
+            const venc = new Date();
+            venc.setDate(venc.getDate() + 3);
+            area.innerHTML = `
+                <div class="boleto-box">
+                    <div class="pix-label">Código de Barras</div>
+                    ${gerarBarcode()}
+                    <div class="boleto-code">${gerarCodigoBoleto()}</div>
+                    <div class="d-flex justify-content-between align-items-center mt-2">
+                        <span class="pix-label">Vencimento</span>
+                        <span style="font-size:.78rem;color:var(--text-1);font-weight:600">
+                            ${venc.toLocaleDateString('pt-BR')}
+                        </span>
+                    </div>
+                    <div class="text-muted small mt-2" style="font-size:.7rem">
+                        <i class="bi bi-info-circle me-1"></i>Pague em qualquer banco ou lotérica até a data de vencimento.
+                    </div>
+                </div>`;
+        }
+    };
+
+    const formatarCartao = (input) => {
+        let v = input.value.replace(/\D/g, '').substring(0, 16);
+        input.value = v.replace(/(.{4})/g, '$1 ').trim();
+    };
+
+    const formatarValidade = (input) => {
+        let v = input.value.replace(/\D/g, '').substring(0, 4);
+        if (v.length >= 3) v = v.substring(0, 2) + '/' + v.substring(2);
+        input.value = v;
     };
 
     // confirmar pagamento
@@ -573,7 +731,7 @@
             renderHistorico();
             renderPlanos();
         } catch (erro) {
-            alert(erro.message);
+            mostrarToast(erro.message);
         }
     };
 
@@ -670,28 +828,28 @@
             renderPlanos();
             renderSimulador();
         } catch (erro) {
-            alert(erro.message);
+            mostrarToast(erro.message);
         }
     };
 
     // cancelar assinatura
     const cancelarAssinatura = (id) => {
-        if (confirm('Cancelar esta assinatura? O pagamento vinculado também será removido.')) {
+        confirmar('Cancelar esta assinatura? O pagamento vinculado também será removido.', () => {
             const pag = pagamentoCtrl.buscarPorAssinatura(id);
             if (pag) pagamentoCtrl.remover(pag.ID_Pagamento);
             assinaturaCtrl.remover(id);
             renderSimulador();
             renderHistorico();
-        }
+        });
     };
 
     // remover plano
     const removerPlano = (id) => {
-        if (confirm('Excluir este plano?')) {
+        confirmar('Excluir este plano?', () => {
             planoCtrl.remover(id);
             renderPlanos();
             renderSimulador();
-        }
+        });
     };
 
     // init

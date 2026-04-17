@@ -185,11 +185,11 @@
                 </div>
                 <div class="row">
                     <div class="col-md-6 mb-3">
-                        <label class="form-label small fw-bold text-muted">INSTRUTOR (perfil: instrutor)</label>
+                        <label class="form-label small fw-bold text-muted">INSTRUTOR</label>
                         <select id="c-instrutor" class="form-select"></select>
                     </div>
                     <div class="col-md-6 mb-3">
-                        <label class="form-label small fw-bold text-muted">CATEGORIA (FK → Categorias)</label>
+                        <label class="form-label small fw-bold text-muted">CATEGORIA</label>
                         <select id="c-categoria" class="form-select"></select>
                     </div>
                 </div>
@@ -302,7 +302,7 @@
             bootstrap.Modal.getInstance(document.getElementById('modalCategoria')).hide();
             renderCategorias();
         } catch (erro) {
-            alert(erro.message);
+            mostrarToast(erro.message);
         }
     };
 
@@ -324,23 +324,23 @@
             bootstrap.Modal.getInstance(document.getElementById('modalCurso')).hide();
             renderCursos();
         } catch (erro) {
-            alert(erro.message);
+            mostrarToast(erro.message);
         }
     };
 
     // remover
     const removerCategoria = (id) => {
-        if (confirm('Excluir esta categoria? Cursos vinculados ficarão sem categoria.')) {
+        confirmar('Excluir esta categoria? Cursos vinculados ficarão sem categoria.', () => {
             catCtrl.remover(id);
             renderCategorias();
-        }
+        });
     };
 
     const removerCurso = (id) => {
-        if (confirm('Tem certeza que deseja excluir este curso?')) {
+        confirmar('Tem certeza que deseja excluir este curso?', () => {
             cursoCtrl.remover(id);
             renderCursos();
-        }
+        });
     };
 
     // init

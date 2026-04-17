@@ -233,7 +233,7 @@
                 </div>
                 <span class="selector-label">Usuário</span>
                 <select id="selectUsuario" class="form-select" onchange="onUsuarioChange()">
-                    <option value="">— Selecione o usuário ativo —</option>
+                    <option value="">Selecione o usuário ativo</option>
                 </select>
             </div>
             <div class="selector-divider"></div>
@@ -244,7 +244,7 @@
                 </div>
                 <span class="selector-label">Curso</span>
                 <select id="selectCurso" class="form-select" onchange="onCursoChange()">
-                    <option value="">— Selecione um curso —</option>
+                    <option value="">Selecione um curso</option>
                 </select>
             </div>
         </div>
@@ -447,7 +447,7 @@
         }
 
         aviso.style.display = 'none';
-        sel.innerHTML = '<option value="">— Selecione o usuário ativo —</option>'
+        sel.innerHTML = '<option value="">Selecione o usuário ativo</option>'
             + usuarios.map(u =>
                 `<option value="${u.ID_Usuario}" ${u.ID_Usuario === usuarioLogadoId ? 'selected' : ''}>${u.NomeCompleto}</option>`
               ).join('');
@@ -466,7 +466,7 @@
         const valorAtual = selectedCursoId && cursos.some(c => c.ID_Curso === selectedCursoId)
             ? selectedCursoId : '';
 
-        sel.innerHTML = '<option value="">— Selecione um curso —</option>'
+        sel.innerHTML = '<option value="">Selecione um curso</option>'
             + cursos.map(c =>
                 `<option value="${c.ID_Curso}" ${c.ID_Curso === valorAtual ? 'selected' : ''}>${c.Titulo}</option>`
               ).join('');
@@ -629,14 +629,14 @@
     // toggle progresso
     const toggleProgresso = (idAula) => {
         if (!usuarioLogadoId) {
-            alert('Selecione um usuário ativo para registrar o progresso.');
+            mostrarToast('Selecione um usuário ativo para registrar o progresso.');
             return;
         }
         try {
             progressoCtrl.marcarComoConcluido(usuarioLogadoId, idAula);
             renderAreaCurso();
         } catch (erro) {
-            alert(erro.message);
+            mostrarToast(erro.message);
         }
     };
 
@@ -679,7 +679,7 @@
             bootstrap.Modal.getInstance(document.getElementById('modalAvaliacao')).hide();
             renderAreaCurso();
         } catch (erro) {
-            alert(erro.message);
+            mostrarToast(erro.message);
         }
     };
 
@@ -699,7 +699,7 @@
             bootstrap.Modal.getInstance(document.getElementById('modalModulo')).hide();
             renderAreaCurso();
         } catch (erro) {
-            alert(erro.message);
+            mostrarToast(erro.message);
         }
     };
 
@@ -718,24 +718,24 @@
             bootstrap.Modal.getInstance(document.getElementById('modalAula')).hide();
             renderAreaCurso();
         } catch (erro) {
-            alert(erro.message);
+            mostrarToast(erro.message);
         }
     };
 
     // remover (cascade)
     const removerModulo = (id) => {
-        if (confirm('Excluir este módulo? Todas as aulas vinculadas serão removidas.')) {
+        confirmar('Excluir este módulo? Todas as aulas vinculadas serão removidas.', () => {
             aulaCtrl.listarPorModulo(id).forEach(a => aulaCtrl.remover(a.ID_Aula));
             moduloCtrl.remover(id);
             renderAreaCurso();
-        }
+        });
     };
 
     const removerAula = (id) => {
-        if (confirm('Tem certeza que deseja excluir esta aula?')) {
+        confirmar('Tem certeza que deseja excluir esta aula?', () => {
             aulaCtrl.remover(id);
             renderAreaCurso();
-        }
+        });
     };
 
     // init
