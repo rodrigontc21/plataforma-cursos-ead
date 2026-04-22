@@ -308,6 +308,7 @@ button, input, select, textarea { font-family: inherit; }
 .btn {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 6px;
     padding: 0.45rem 1rem;
     border-radius: var(--radius-pill);
