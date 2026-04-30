@@ -65,4 +65,27 @@ class UsuarioController {
         const lista = this.listarTodos().filter(u => u.ID_Usuario !== Number(id));
         this.salvarNoStorage(lista);
     }
+
+    atualizar(id, novoNome, novoEmail, novoPerfil) {
+        if (!novoNome || novoNome.trim() === '')
+            throw new Error('Nome Completo é obrigatório.');
+        if (!novoEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(novoEmail))
+            throw new Error('Formato de e-mail inválido.');
+        if (!['aluno', 'instrutor'].includes(novoPerfil))
+            throw new Error('Perfil inválido.');
+
+        const lista = this.listarTodos();
+        const emailEmUso = lista.some(
+            u => u.Email.toLowerCase() === novoEmail.toLowerCase() && u.ID_Usuario !== Number(id)
+        );
+        if (emailEmUso) throw new Error('Este e-mail já está cadastrado por outro usuário.');
+
+        const atualizado = lista.map(u => {
+            if (u.ID_Usuario === Number(id)) {
+                return { ...u, NomeCompleto: novoNome.trim(), Email: novoEmail.trim().toLowerCase(), Perfil: novoPerfil };
+            }
+            return u;
+        });
+        this.salvarNoStorage(atualizado);
+    }
 }

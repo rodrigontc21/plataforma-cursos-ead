@@ -253,6 +253,53 @@
     </div>
 </div>
 
+<!-- modal editar usuario -->
+<div class="modal fade" id="modalEditarUsuario" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header bg-dark text-white border-0">
+                <h5 class="modal-title fw-bold">
+                    <i class="bi bi-pencil-square me-2 text-warning"></i>Editar Usuário
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <input type="hidden" id="edit-id">
+                <div class="mb-3">
+                    <label class="form-label small fw-bold text-muted">NOME COMPLETO</label>
+                    <input type="text" id="edit-nome" class="form-control" placeholder="Ex: Rodrigo Vieira">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label small fw-bold text-muted">E-MAIL</label>
+                    <input type="email" id="edit-email" class="form-control" placeholder="exemplo@email.com">
+                </div>
+                <div class="mb-1">
+                    <label class="form-label small fw-bold text-muted">PERFIL</label>
+                    <div class="perfil-toggle">
+                        <input type="radio" class="btn-check" name="edit-perfil" id="ep-aluno"
+                               value="aluno" autocomplete="off">
+                        <label class="btn" for="ep-aluno">
+                            <i data-lucide="user" style="width:13px;height:13px;stroke-width:2.25"></i>
+                            Aluno
+                        </label>
+                        <input type="radio" class="btn-check" name="edit-perfil" id="ep-instrutor"
+                               value="instrutor" autocomplete="off">
+                        <label class="btn" for="ep-instrutor">
+                            <i data-lucide="mic" style="width:13px;height:13px;stroke-width:2.25"></i>
+                            Instrutor
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer border-0 p-4 pt-0">
+                <button class="btn btn-warning w-100 fw-bold py-3" onclick="salvarEdicaoUsuario()" style="color:#0f0f1a;">
+                    SALVAR ALTERAÇÕES
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- scripts -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="../js/utils.js"></script>
@@ -311,6 +358,10 @@
                             onclick="abrirModalMatricula(${u.ID_Usuario})">
                         <i class="bi bi-journal-plus"></i>
                     </button>` : ''}
+                    <button class="btn btn-sm btn-outline-warning border-0 me-1" title="Editar"
+                            onclick="editarUsuario(${u.ID_Usuario})">
+                        <i class="bi bi-pencil"></i>
+                    </button>
                     <button class="btn btn-sm btn-outline-danger border-0" title="Excluir"
                             onclick="removerUsuario(${u.ID_Usuario})">
                         <i class="bi bi-trash3"></i>
@@ -455,6 +506,33 @@
             document.getElementById('p-aluno').checked = true;
             bootstrap.Modal.getInstance(document.getElementById('modalUsuario')).hide();
             renderizar();
+        } catch (erro) {
+            mostrarToast(erro.message);
+        }
+    };
+
+    // editar usuario — abre modal preenchido
+    const editarUsuario = (id) => {
+        const u = userCtrl.buscarPorId(id);
+        if (!u) return;
+        document.getElementById('edit-id').value    = u.ID_Usuario;
+        document.getElementById('edit-nome').value  = u.NomeCompleto;
+        document.getElementById('edit-email').value = u.Email;
+        document.getElementById(u.Perfil === 'instrutor' ? 'ep-instrutor' : 'ep-aluno').checked = true;
+        lucide.createIcons();
+        new bootstrap.Modal(document.getElementById('modalEditarUsuario')).show();
+    };
+
+    const salvarEdicaoUsuario = () => {
+        const id     = Number(document.getElementById('edit-id').value);
+        const nome   = document.getElementById('edit-nome').value;
+        const email  = document.getElementById('edit-email').value;
+        const perfil = document.querySelector('input[name="edit-perfil"]:checked').value;
+        try {
+            userCtrl.atualizar(id, nome, email, perfil);
+            bootstrap.Modal.getInstance(document.getElementById('modalEditarUsuario')).hide();
+            renderizar();
+            if (selectedUsuarioId === id && painelMatriculasAberto()) renderMatriculasUsuario(id);
         } catch (erro) {
             mostrarToast(erro.message);
         }
